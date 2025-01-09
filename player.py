@@ -2,7 +2,7 @@ import pyglet
 
 
 class Player:
-    SPEED = 0.5
+    SPEED = 12.0
 
     def __init__(self, sprite_path, screen_size, tilemap):
         self.tilemap = tilemap
@@ -23,21 +23,21 @@ class Player:
     def reset_pos(self):
         self.position = [0.0, 0.0]
 
-    def move(self, symbol):
-        match symbol:
-            case pyglet.window.key.W:
-                self.position[1] += Player.SPEED
-                self.sprite = self.sprites.sprite_back_default
-            case pyglet.window.key.S:
-                self.position[1] -= Player.SPEED 
-                self.sprite = self.sprites.sprite_front_default
-            case pyglet.window.key.A:
-                self.position[0] -= Player.SPEED
-                self.sprite = self.sprites.sprite_left_default
-            case pyglet.window.key.D:
-                self.position[0] += Player.SPEED
-                self.sprite = self.sprites.sprite_right_default
-        
+    def move_up(self, dt):
+        self.position[1] += Player.SPEED * dt
+        self.sprite = self.sprites.sprite_back_default
+
+    def move_down(self, dt):
+        self.position[1] -= Player.SPEED * dt
+        self.sprite = self.sprites.sprite_front_default
+
+    def move_left(self, dt):
+        self.position[0] -= Player.SPEED * dt
+        self.sprite = self.sprites.sprite_left_default
+
+    def move_right(self, dt):
+        self.position[0] += Player.SPEED * dt
+        self.sprite = self.sprites.sprite_right_default
 
     def draw(self):
         self.sprite.blit(self.screen_width // 2, self.screen_height // 2)

@@ -13,7 +13,6 @@ class Game:
 
 
 window = pyglet.window.Window(*Game.SIZE)
-window.set_fullscreen(True)
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 
 
@@ -21,8 +20,6 @@ window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 def on_draw():
     #glEnable(GL_BLEND)
     #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    for symbol in held_movement_keys:
-        player.move(symbol)
     
     tilemap.adjust_position(player.get_pos())
     door = tilemap.check_for_door(player.get_pos())
@@ -38,30 +35,42 @@ def on_draw():
 
     tilemap.draw()
     player.draw()
+    fps_display.draw()
 
 
 @window.event
 def on_key_press(symbol, _):
-    if symbol in [pyglet.window.key.W, pyglet.window.key.A, pyglet.window.key.S, pyglet.window.key.D]:
-        held_movement_keys.append(symbol)
-        return
-    
-    if symbol == pyglet.window.key.MINUS:
+    if symbol == pyglet.window.key.W:
+        pyglet.clock.schedule_interval(player.move_up, 1 / 60.0)
+    elif symbol == pyglet.window.key.A:
+        pyglet.clock.schedule_interval(player.move_left, 1 / 60.0)
+    elif symbol == pyglet.window.key.S:
+        pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
+    elif symbol == pyglet.window.key.D:
+        pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
+    elif symbol == pyglet.window.key.MINUS:
         Game.zoom -= 0.1
         window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
-    if symbol == pyglet.window.key.EQUAL:
+    elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0
         window.view = window.view.scale((1.0, 1.0, 1.0))
-    if symbol == pyglet.window.key.PLUS and Game.zoom < 2:
+    elif symbol == pyglet.window.key.PLUS and Game.zoom < 2:
         Game.zoom += 0.1
         window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 
 @window.event
 def on_key_release(symbol, _):
-    if symbol in [pyglet.window.key.W, pyglet.window.key.A, pyglet.window.key.S, pyglet.window.key.D]:
-        held_movement_keys.remove(symbol)
-        return
+    if symbol == pyglet.window.key.W:
+        pyglet.clock.unschedule(player.move_up)
+    elif symbol == pyglet.window.key.A:
+        pyglet.clock.unschedule(player.move_left)
+    elif symbol == pyglet.window.key.S:
+        pyglet.clock.unschedule(player.move_down)
+    elif symbol == pyglet.window.key.D:
+        pyglet.clock.unschedule(player.move_right)
 
+
+fps_display = pyglet.window.FPSDisplay(window=window)
 
 pyglet.font.add_file('assets/font/PixelatedElegance.ttf')
 
