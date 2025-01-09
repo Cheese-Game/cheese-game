@@ -1,42 +1,47 @@
 import pyglet
 
-from camera import Camera
-
 
 class Player:
-  SPEED = 3
+    SPEED = 0.5
 
-  def __init__(self, sprite_path, screen_size):
-      self.screen_width, self.screen_height = screen_size
+    def __init__(self, sprite_path, screen_size, tilemap):
+        self.tilemap = tilemap
+        self.screen_width, self.screen_height = screen_size
 
-      self.position = [self.screen_width // 2, self.screen_height // 2]
-      self.sprites = PlayerSprites(sprite_path)
-      self.sprite = self.sprites.sprite_front_default
+        self.position = [0.0, 0.0]
+        self.sprites = PlayerSprites(sprite_path)
+        self.sprite = self.sprites.sprite_front_default
+        #self.sprite.opacity=50
 
-      self.camera = Camera(0, 0, 0)
 
-  def get_pos(self):
-      return self.position
+    def get_pos(self):
+        return self.position
 
-  def set_pos(self, x, y):
-      self.position = [x, y]
+    def set_pos(self, x, y):
+        self.position = [x, y]
 
-  def reset_pos(self):
-      self.position = [self.screen_width // 2, self.screen_height // 2]
-      self.camera.x = 0
-      self.camera.y = 0
+    def reset_pos(self):
+        self.position = [0.0, 0.0]
 
-  def move(self, x, y):
-      self.position[0] += x
-      self.position[1] += y
+    def move(self, symbol):
+        match symbol:
+            case pyglet.window.key.W:
+                self.position[1] += Player.SPEED
+                self.sprite = self.sprites.sprite_back_default
+            case pyglet.window.key.S:
+                self.position[1] -= Player.SPEED 
+                self.sprite = self.sprites.sprite_front_default
+            case pyglet.window.key.A:
+                self.position[0] -= Player.SPEED
+                self.sprite = self.sprites.sprite_left_default
+            case pyglet.window.key.D:
+                self.position[0] += Player.SPEED
+                self.sprite = self.sprites.sprite_right_default
+        
 
-      self.camera.x += x
-      self.camera.y += y
-
-  def draw(self):
-      self.sprite.blit(self.position[0] - self.camera.x,
-                       self.position[1] - self.camera.y)
-
+    def draw(self):
+        self.sprite.blit(self.screen_width // 2, self.screen_height // 2)
+    
 
 class PlayerSprites:
     def __init__(self, sprite_path):

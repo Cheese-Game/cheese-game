@@ -18,7 +18,8 @@ class Tileset:
         self.load()
 
     def load(self) -> None:
-        w, h = self.image.width // Tileset.TILE_SIZE, self.image.height // Tileset.TILE_SIZE
+        w = self.image.width // Tileset.TILE_SIZE
+        h = self.image.height // Tileset.TILE_SIZE
 
         for x in range(0, w):
             for y in range(0, h):
@@ -37,8 +38,8 @@ def get_map(tilemap):
     with open(tilemap, 'r') as file:
         data = json.load(file)
     a = array(data['layer0'])
-    a = flipud(a)
-    return a, a.shape
+    doors = data['doors']
+    return flipud(a), a.shape, doors
 
 
 class Tilemap:
@@ -47,20 +48,39 @@ class Tilemap:
         self.tileset = tileset
         self.screen_width, self.screen_height = screen_size
 
-        self.map, self.size = get_map(path)
+        self.map, self.size, self.doors_obj = get_map(path)
 
-        self.position_offset = [
-            self.screen_width // 2 - (self.size[0] + 1) *
-            (Tileset.TILE_SIZE // 2), self.screen_height // 2 -
-            (self.size[1] + 1) * (Tileset.TILE_SIZE // 2)
-        ]
+        self.position = [self.screen_width // 2, self.screen_height // 2]
 
-        self.position = [self.position_offset[0], self.position_offset[1]]
+    def get_size(self):
+        return self.size
+
+    def check_for_door(self, pos):
+        try:
+            for door in self.doors:
+                if door['pos'] == [int(pos[0]), int(pos[1])]:
+                    return door['to']
+            return None
+        except Exception:
+            return None
 
     def draw(self) -> None:
+        self.doors = []
         for i in range(self.size[0]):
             for j in range(self.size[1]):
-                tile = self.tileset.tiles[self.map[i, j]]
+                tile_id = self.map[i, j]
+                
+                if tile_id == 0:
+                    continue
+                elif tile_id < 0:
+                    currentDoorObj = self.doors_obj[-1-tile_id]
+                    tile_id = currentDoorObj['tile']
+                    self.doors.append({
+                        "to": currentDoorObj['to'],
+                        "pos": [j, i]
+                    })
+                
+                tile = self.tileset.tiles[tile_id]
 
                 tile.blit(j * Tileset.TILE_SIZE + self.position[0],
                           i * Tileset.TILE_SIZE + self.position[1])
@@ -68,20 +88,14 @@ class Tilemap:
     def adjust_position(self, player_pos) -> None:
         x, y = player_pos
         self.position = [
-            self.position_offset[0] - x + self.screen_width // 2,
-            self.position_offset[1] - y + self.screen_height // 2
+            self.screen_width // 2 - player_pos[0] * 16,
+            self.screen_height // 2 - player_pos[1] * 16
         ]
 
     def update_tilemap(self, tileset, path, screen_size):
         self.tileset = tileset
         self.screen_width, self.screen_height = screen_size
 
-        self.map, self.size = get_map(path)
+        self.map, self.size, self.doors_obj = get_map(path)
 
-        self.position_offset = [
-            self.screen_width // 2 - (self.size[0] + 1) *
-            (Tileset.TILE_SIZE // 2), self.screen_height // 2 -
-            (self.size[1] + 1) * (Tileset.TILE_SIZE // 2)
-        ]
-
-        self.position = [self.position_offset[0], self.position_offset[1]]
+        self.position = [self.screen_width // 2, self.screen_height // 2]
