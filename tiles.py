@@ -34,6 +34,7 @@ class Tileset:
 
         self.load()
 
+
 def get_map(tilemap):
     with open(tilemap, 'r') as file:
         data = json.load(file)

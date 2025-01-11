@@ -1,4 +1,5 @@
 import pyglet
+import pytmx
 from player import Player
 from tiles import Tileset, Tilemap
 from logger import log
@@ -48,15 +49,6 @@ def on_key_press(symbol, _):
         pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
     elif symbol == pyglet.window.key.D:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
-    elif symbol == pyglet.window.key.MINUS:
-        Game.zoom -= 0.1
-        window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
-    elif symbol == pyglet.window.key.EQUAL:
-        Game.zoom = 1.0
-        window.view = window.view.scale((1.0, 1.0, 1.0))
-    elif symbol == pyglet.window.key.PLUS and Game.zoom < 2:
-        Game.zoom += 0.1
-        window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 
 @window.event
 def on_key_release(symbol, _):
@@ -78,6 +70,9 @@ label = pyglet.text.Label('Hello, world',
                           font_name='Pixelated Elegance',
                           font_size=36,
                           x=10, y=10)
+
+
+# tmx_data = pytmx.TiledTileset('assets/tileset/area1/area1.tsx')
 
 tileset = Tileset('assets/tileset/area1.png')
 tilemap = Tilemap(tileset, 'assets/tilemap/area1.json', Game.SIZE)
