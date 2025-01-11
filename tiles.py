@@ -89,8 +89,8 @@ class Tilemap:
     def adjust_position(self, player_pos) -> None:
         x, y = player_pos
         self.position = [
-            self.screen_width // 2 - player_pos[0] * 16,
-            self.screen_height // 2 - player_pos[1] * 16
+            self.screen_width // 2 - x * 16,
+            self.screen_height // 2 - y * 16
         ]
 
     def update_tilemap(self, tileset, path, screen_size):

@@ -11,8 +11,7 @@ class Player:
         self.position = [0.0, 0.0]
         self.sprites = PlayerSprites(sprite_path)
         self.sprite = self.sprites.sprite_front_default
-        #self.sprite.opacity=50
-
+        # self.sprite.opacity=50
 
     def get_pos(self):
         return self.position
@@ -45,12 +44,12 @@ class Player:
 
 class PlayerSprites:
     def __init__(self, sprite_path):
-      self.sprite_path_front_default = sprite_path + 'front-default.png'
-      self.sprite_path_back_default = sprite_path + 'back-default.png'
-      self.sprite_path_left_default = sprite_path + 'left-default.png'
-      self.sprite_path_right_default = sprite_path + 'right-default.png'
-    
-      self.sprite_front_default = pyglet.resource.image(self.sprite_path_front_default)
-      self.sprite_back_default = pyglet.resource.image(self.sprite_path_back_default)
-      self.sprite_left_default = pyglet.resource.image(self.sprite_path_left_default)
-      self.sprite_right_default = pyglet.resource.image(self.sprite_path_right_default)
+        self.sprite_path_front_default = sprite_path + 'front-default.png'
+        self.sprite_path_back_default = sprite_path + 'back-default.png'
+        self.sprite_path_left_default = sprite_path + 'left-default.png'
+        self.sprite_path_right_default = sprite_path + 'right-default.png'
+
+        self.sprite_front_default = pyglet.resource.image(self.sprite_path_front_default)
+        self.sprite_back_default = pyglet.resource.image(self.sprite_path_back_default)
+        self.sprite_left_default = pyglet.resource.image(self.sprite_path_left_default)
+        self.sprite_right_default = pyglet.resource.image(self.sprite_path_right_default)

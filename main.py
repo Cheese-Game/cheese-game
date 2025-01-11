@@ -1,7 +1,7 @@
 import pyglet
 import pytmx
 from player import Player
-from tiles import Tileset, Tilemap
+from new_tilemap import Tilemap
 from logger import log
 
 
@@ -23,12 +23,12 @@ def on_draw():
     #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     
     tilemap.adjust_position(player.get_pos())
-    door = tilemap.check_for_door(player.get_pos())
+    # door = tilemap.check_for_door(player.get_pos())
 
-    if door is not None:
-        tileset.update_tileset(f'assets/tileset/{door}.png')
-        tilemap.update_tilemap(tileset, f'assets/tilemap/{door}.json', Game.SIZE)
-        player.reset_pos()
+    # if door is not None:
+    #     # tileset.update_tileset(f'assets/tileset/{door}.png')
+    #     tilemap.update_tilemap(f'assets/tilemap/{door}.json', Game.SIZE)
+    #     player.reset_pos()
 
     window.clear()
     
@@ -74,8 +74,8 @@ label = pyglet.text.Label('Hello, world',
 
 # tmx_data = pytmx.TiledTileset('assets/tileset/area1/area1.tsx')
 
-tileset = Tileset('assets/tileset/area1.png')
-tilemap = Tilemap(tileset, 'assets/tilemap/area1.json', Game.SIZE)
+# tileset = Tileset('assets/tileset/area1.png')
+tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE, tilemap)
 
