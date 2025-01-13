@@ -4,10 +4,8 @@ import pyglet
 class Player:
     SPEED = 12.0
 
-    def __init__(self, sprite_path, screen_size, tilemap):
-        self.tilemap = tilemap
+    def __init__(self, sprite_path, screen_size):
         self.screen_width, self.screen_height = screen_size
-
         self.position = [0.0, 0.0]
         self.sprites = PlayerSprites(sprite_path)
         self.sprite = self.sprites.sprite_front_default

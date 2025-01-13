@@ -3,6 +3,7 @@ import pytmx
 from player import Player
 from new_tilemap import Tilemap
 from logger import log
+from npc import Child
 
 
 class Game:
@@ -37,6 +38,8 @@ def on_draw():
     tilemap.draw()
     player.draw()
     fps_display.draw()
+    for child in child_flock:
+        child.update(child_flock)
 
 
 @window.event
@@ -77,7 +80,11 @@ label = pyglet.text.Label('Hello, world',
 # tileset = Tileset('assets/tileset/area1.png')
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
-player = Player('assets/sprites/player/', Game.SIZE, tilemap)
+player = Player('assets/sprites/player/', Game.SIZE)
+
+child_flock = []
+for i in range(10):
+    child_flock.append(Child(0, 0, 1, 1))
 
 held_movement_keys = []
 
