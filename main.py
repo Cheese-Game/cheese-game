@@ -1,5 +1,4 @@
 import pyglet
-import pytmx
 from player import Player
 from new_tilemap import Tilemap
 from logger import log
@@ -9,6 +8,7 @@ from npc import Child
 class Game:
     SIZE = 640, 480
     zoom = 1.0
+    totalzoom=1.0
     
     def __init__(self):
         pyglet.app.run()
@@ -17,19 +17,12 @@ class Game:
 window = pyglet.window.Window(*Game.SIZE)
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 
-
 @window.event
 def on_draw():
-    #glEnable(GL_BLEND)
-    #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     
+    #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST) 
+    #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
     tilemap.adjust_position(player.get_pos())
-    # door = tilemap.check_for_door(player.get_pos())
-
-    # if door is not None:
-    #     # tileset.update_tileset(f'assets/tileset/{door}.png')
-    #     tilemap.update_tilemap(f'assets/tilemap/{door}.json', Game.SIZE)
-    #     player.reset_pos()
 
     window.clear()
     
@@ -52,7 +45,29 @@ def on_key_press(symbol, _):
         pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
     elif symbol == pyglet.window.key.D:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
+    elif symbol == pyglet.window.key.PLUS:
+        Game.zoom=Game.zoom+0.1
+        window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
+        Game.totalzoom=Game.totalzoom*Game.zoom
+        player.get_screen_size(Game.zoom)
+        tilemap.get_screen_size(Game.zoom)
 
+    elif symbol == pyglet.window.key.MINUS:
+        Game.zoom=Game.zoom-0.1
+        window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
+        Game.totalzoom=Game.totalzoom*Game.zoom
+        player.get_screen_size(Game.zoom)
+        tilemap.get_screen_size(Game.zoom)
+    elif symbol == pyglet.window.key.EQUAL:
+        Game.zoom=1.0/Game.totalzoom
+        window.view= window.view.scale((Game.zoom, Game.zoom, Game.zoom))
+        player.get_screen_size(Game.zoom)
+        tilemap.get_screen_size(Game.zoom)
+        Game.zoom=1.0
+        Game.totalzoom=1.0
+    elif symbol == pyglet.window.key.B:
+        pyglet.app.exit()
+        
 @window.event
 def on_key_release(symbol, _):
     if symbol == pyglet.window.key.W:
@@ -75,9 +90,6 @@ label = pyglet.text.Label('Hello, world',
                           x=10, y=10)
 
 
-# tmx_data = pytmx.TiledTileset('assets/tileset/area1/area1.tsx')
-
-# tileset = Tileset('assets/tileset/area1.png')
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE)

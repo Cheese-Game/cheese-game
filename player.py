@@ -11,6 +11,10 @@ class Player:
         self.sprite = self.sprites.sprite_front_default
         # self.sprite.opacity=50
 
+    def get_screen_size(self,zoom):
+        self.screen_width = self.screen_width/zoom
+        self.screen_height = self.screen_height/zoom
+    
     def get_pos(self):
         return self.position
 
@@ -23,7 +27,6 @@ class Player:
     def move_up(self, dt):
         self.position[1] += Player.SPEED * dt
         self.sprite = self.sprites.sprite_back_default
-
     def move_down(self, dt):
         self.position[1] -= Player.SPEED * dt
         self.sprite = self.sprites.sprite_front_default
@@ -37,7 +40,7 @@ class Player:
         self.sprite = self.sprites.sprite_right_default
 
     def draw(self):
-        self.sprite.blit(self.screen_width // 2, self.screen_height // 2)
+        self.sprite.blit(self.screen_width / 2, self.screen_height / 2)
     
 
 class PlayerSprites:
