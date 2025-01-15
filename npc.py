@@ -3,26 +3,31 @@ import pyglet
 
 
 class Child:
-    MAX_SPEED = 20.0
+    MAX_SPEED = 50.0
     PERCEPTION_RADIUS = 40.0
 
     SOCIAL_ANXIETY_WEIGHT = 0.1
     PEER_PRESSURE_WEIGHT = 0.01
     ATTACHMENT_ISSUES_WEIGHT = 0.01
 
-    def __init__(self, x, y, vx, vy):
+    def __init__(self, x, y, vx, vy, screen_size):
         self.position = [x, y]
         self.velocity = [vx, vy]
+
+        self.screen_width, self.screen_height = screen_size
 
         self.sprite = pyglet.resource.image('assets/sprites/player/front-default.png')
 
     def get_pos(self):
         return self.position
 
-    def draw(self):
-        self.sprite.blit(*self.position)
+    def draw(self, playerPos):
+        x, y = playerPos
+        self.sprite.blit(self.position[0] - x * 16,
+                         self.position[1] - y * 16)
 
-    def update(self, flock):
+
+    def update(self, flock, playerPos):
         socialAnxiety = self.social_anxiety(flock)
         attachmentIssues = self.attachment_issues(flock)
         peerPressure = self.peer_pressure(flock)
@@ -35,7 +40,7 @@ class Child:
                             attachmentIssues[1] * Child.ATTACHMENT_ISSUES_WEIGHT +
                             peerPressure[1] * Child.PEER_PRESSURE_WEIGHT)
 
-        speed = math.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
+        speed = math.sqrt(self.velocity.x**2 + self.velocity.y**2)
 
         if speed > Child.MAX_SPEED:
             self.velocity[0] = (self.velocity[0] / speed) * Child.MAX_SPEED
@@ -43,15 +48,15 @@ class Child:
 
         self.position[0] += self.velocity[0]
         self.position[1] += self.velocity[1]
-
-        self.draw()
+        
+        self.draw(playerPos)
 
     def social_anxiety(self, flock):
-        steering = [0, 0]
+        steering = [0.0, 0.0]
         total = 0
 
         for child in flock:
-            distance = math.sqrt((self.position[0] - child.position[0])**2 + (self.position[1] - child.position[1])**2)
+            distance = math.sqrt((self.position[0] - child.position.x)**2 + (self.position[1] - child.position.y)**2)
             if 0 < distance < Child.PERCEPTION_RADIUS:
                 steering[0] += child.velocity[0]
                 steering[1] += child.velocity[1]
@@ -63,8 +68,15 @@ class Child:
 
             speed = math.sqrt(steering[0]**2 + steering[1]**2)
 
-            steering[0] = steering[0] / speed * Child.MAX_SPEED
-            steering[1] = steering[1] / speed * Child.MAX_SPEED
+            try:
+                steering[0] = steering[0] / speed * Child.MAX_SPEED
+            except ZeroDivisionError:
+                steering[0] = 0
+
+            try:
+                steering[1] = steering.y / speed * Child.MAX_SPEED
+            except ZeroDivisionError:
+                steering.y = 0
 
             steering[0] -= self.velocity[0]
             steering[1] -= self.velocity[1]
@@ -72,13 +84,13 @@ class Child:
         return steering
 
     def attachment_issues(self, flock):
-        steering = [0, 0]
+        steering = [0.0, 0.0]
         total = 0
 
         for child in flock:
             distance = math.sqrt((self.position[0] - child.position[0])**2 + (self.position[1] - child.position[1])**2)
             if 0 < distance < Child.PERCEPTION_RADIUS:
-                steering[0] += child.position[0]
+                steering.x += child.position[0]
                 steering[1] += child.position[1]
                 total += 1
 
@@ -91,8 +103,15 @@ class Child:
 
             speed = math.sqrt(steering[0]**2 + steering[1]**2)
 
-            steering[0] = steering[0] / speed * Child.MAX_SPEED
-            steering[1] = steering[1] / speed * Child.MAX_SPEED
+            try:
+                steering[0] = steering[0] / speed * Child.MAX_SPEED
+            except ZeroDivisionError:
+                steering[0] = 0
+
+            try:
+                steering[1] = steering[1] / speed * Child.MAX_SPEED
+            except ZeroDivisionError:
+                steering[1] = 0
 
             steering[0] -= self.velocity[0]
             steering[1] -= self.velocity[1]
@@ -100,7 +119,7 @@ class Child:
         return steering
 
     def peer_pressure(self, flock):
-        steering = [0, 0]
+        steering = [0.0, 0.0]
         total = 0
 
         for child in flock:
@@ -117,12 +136,19 @@ class Child:
 
             speed = math.sqrt(steering[0]**2 + steering[1]**2)
 
-            steering[0] = steering[0] / speed * Child.MAX_SPEED
-            steering[1] = steering[1] / speed * Child.MAX_SPEED
+            try:
+                steering[0] = steering[0] / speed * Child.MAX_SPEED
+            except ZeroDivisionError:
+                steering[0] = 0
+
+            try:
+                steering[1] = steering[1] / speed * Child.MAX_SPEED
+            except ZeroDivisionError:
+                steering[1] = 0
 
             steering[0] -= self.velocity[0]
             steering[1] -= self.velocity[1]
 
         return steering
 
-
+    

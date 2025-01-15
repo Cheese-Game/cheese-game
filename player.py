@@ -1,4 +1,4 @@
-import pyglet
+from pyglet.resource import image
 
 
 class Player:
@@ -9,8 +9,7 @@ class Player:
         self.position = [0.0, 0.0]
         self.sprites = PlayerSprites(sprite_path)
         self.sprite = self.sprites.sprite_front_default
-        # self.sprite.opacity=50
-
+    
     def get_screen_size(self,zoom):
         self.screen_width = self.screen_width/zoom
         self.screen_height = self.screen_height/zoom
@@ -50,7 +49,7 @@ class PlayerSprites:
         self.sprite_path_left_default = sprite_path + 'left-default.png'
         self.sprite_path_right_default = sprite_path + 'right-default.png'
 
-        self.sprite_front_default = pyglet.resource.image(self.sprite_path_front_default)
-        self.sprite_back_default = pyglet.resource.image(self.sprite_path_back_default)
-        self.sprite_left_default = pyglet.resource.image(self.sprite_path_left_default)
-        self.sprite_right_default = pyglet.resource.image(self.sprite_path_right_default)
+        self.sprite_front_default = image(self.sprite_path_front_default)
+        self.sprite_back_default = image(self.sprite_path_back_default)
+        self.sprite_left_default = image(self.sprite_path_left_default)
+        self.sprite_right_default = image(self.sprite_path_right_default)

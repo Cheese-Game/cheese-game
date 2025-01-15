@@ -1,5 +1,6 @@
-import pyglet
-import xml.etree.ElementTree as ET
+from pyglet import resource
+from xml.etree.ElementTree import parse
+from numpy import zeros, fliplr, int16
 
 
 class Tileset:
@@ -13,7 +14,7 @@ class Tileset:
     
     def parse_tileset(self):
         with open(self.filename) as tset:
-            root = ET.parse(tset).getroot()
+            root = parse(tset).getroot()
         
         for tile in root:
             if tile.tag == "grid":
@@ -25,7 +26,7 @@ class Tileset:
 
             path = path_to_tsx + tile[0].attrib['source']
 
-            image = pyglet.resource.image(path)
+            image = resource.image(path)
 
             self.tiles[int(tile.attrib['id'])] = image
 
@@ -35,23 +36,27 @@ class Tilemap:
         self.screen_width, self.screen_height = screen_size
 
         self.tileset = None
-        self.map = []
+        self.map = None
         self.position = [self.screen_width // 2, self.screen_height // 2]
 
         self.tilemap_size = [0, 0]
 
         self.parse_map()
 
+    def get_screen_size(self,zoom):
+        self.screen_width = self.screen_width/zoom
+        self.screen_height = self.screen_height/zoom
+
     def draw(self):
         
         for i in range(0, self.tilemap_size[1] - 1):
             for j in range(0, self.tilemap_size[0] - 1):
-                self.tile_dict[self.map[i][j]].blit(j * 16 + self.position[0],
+                self.tile_dict[self.map[j, i]].blit(j * 16 + self.position[0],
                                                i * 16 + self.position[1])
                 
     def parse_map(self):
         with open(self.filename) as tmap:
-            root = ET.parse(tmap).getroot()
+            root = parse(tmap).getroot()
 
         self.tilemap_size = [
             int(root.attrib['width']), 
@@ -71,26 +76,27 @@ class Tilemap:
                 continue
 
             data = layer[0].text
-            layer_size = layer.attrib['width'], layer.attrib['height']
+            layer_size = int(layer.attrib['width']), int(layer.attrib['height'])
 
+            self.map = zeros(layer_size, int16)
             
-            for row in data.split('\n')[1:-1]:
+            for y, row in enumerate(data.split('\n')[1:-1]):
                 tiles = row.split(',')[:-1]
 
                 offset = 0
                 
-                self.map.append([])
-                
-                for tile in tiles:
+                for x, tile in enumerate(tiles):
                     tile_id = int(tile) - 1
 
                     condition = True
                     while condition:
                        try:
-                           self.map[-1].append(tile_id + offset)
+                           self.map[x, y] = tile_id + offset
                            condition = False
                        except KeyError:
                            offset += 1
+                           
+        self.map = fliplr(self.map)
 
 
     def adjust_position(self, player_pos) -> None:
