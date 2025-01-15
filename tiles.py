@@ -2,12 +2,15 @@ from pyglet import resource
 from xml.etree.ElementTree import parse
 from numpy import zeros, fliplr, int16
 
+import cProfile
+import re
+
 
 class Tileset:
     def __init__(self, filename):
         self.filename = filename
 
-        self.tiles = {}
+        self.tiles = []
 
     def get_tiles(self):
         return self.tiles
@@ -28,7 +31,11 @@ class Tileset:
 
             image = resource.image(path)
 
-            self.tiles[int(tile.attrib['id'])] = image
+            tile_id = int(tile.attrib['id'])
+            while tile_id > len(self.tiles):
+                self.tiles.append(None)
+            self.tiles.append(image)
+
 
 class Tilemap:
     def __init__(self, filename, screen_size):
@@ -43,17 +50,17 @@ class Tilemap:
 
         self.parse_map()
 
-    def get_screen_size(self,zoom):
+    def get_screen_size(self, zoom):
         self.screen_width = self.screen_width/zoom
         self.screen_height = self.screen_height/zoom
 
     def draw(self):
-        
+
         for i in range(0, self.tilemap_size[1] - 1):
             for j in range(0, self.tilemap_size[0] - 1):
-                self.tile_dict[self.map[j, i]].blit(j * 16 + self.position[0],
-                                               i * 16 + self.position[1])
-                
+                self.tile_list[self.map[j, i]].blit(j * 16 + self.position[0],
+                                                    i * 16 + self.position[1])
+
     def parse_map(self):
         with open(self.filename) as tmap:
             root = parse(tmap).getroot()
@@ -63,13 +70,11 @@ class Tilemap:
             int(root.attrib['height'])
         ]
 
-
         self.tileset = Tileset(root[0].attrib['source'].replace('..', 'assets'))
 
         self.tileset.parse_tileset()
 
-
-        self.tile_dict = self.tileset.get_tiles()
+        self.tile_list = self.tileset.get_tiles()
         
         for layer in root:
             if layer.tag == 'tileset':
@@ -90,14 +95,13 @@ class Tilemap:
 
                     condition = True
                     while condition:
-                       try:
-                           self.map[x, y] = tile_id + offset
-                           condition = False
-                       except KeyError:
-                           offset += 1
+                        try:
+                            self.map[x, y] = tile_id + offset
+                            condition = False
+                        except KeyError:
+                            offset += 1
                            
         self.map = fliplr(self.map)
-
 
     def adjust_position(self, player_pos) -> None:
         x, y = player_pos
@@ -105,4 +109,4 @@ class Tilemap:
             self.screen_width // 2 - x * 16,
             self.screen_height // 2 - y * 16
         ]
-    
+

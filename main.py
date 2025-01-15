@@ -19,7 +19,7 @@ class Game:
         pyglet.app.run()
 
 
-window = pyglet.window.Window(*Game.SIZE)
+window = pyglet.window.Window(*Game.SIZE, vsync=False)
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 
 @window.event
@@ -35,8 +35,8 @@ def on_draw():
     tilemap.draw()
     player.draw()
     fps_display.draw()
-    for child in child_flock:
-        child.update(child_flock, player.get_pos())
+    # for child in child_flock:
+    #     child.update(child_flock, player.get_pos())
 
 
 @window.event
