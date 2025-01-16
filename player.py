@@ -2,7 +2,7 @@ from pyglet.resource import image
 
 
 class Player:
-    SPEED = 12.0
+    SPEED = 16.0
 
     def __init__(self, sprite_path, screen_size):
         self.screen_width, self.screen_height = screen_size
@@ -10,9 +10,9 @@ class Player:
         self.sprites = PlayerSprites(sprite_path)
         self.sprite = self.sprites.sprite_front_default
     
-    def get_screen_size(self,zoom):
-        self.screen_width = self.screen_width/zoom
-        self.screen_height = self.screen_height/zoom
+    def get_screen_size(self, zoom):
+        self.screen_width = self.screen_width / zoom
+        self.screen_height = self.screen_height / zoom
     
     def get_pos(self):
         return self.position
@@ -24,18 +24,19 @@ class Player:
         self.position = [0.0, 0.0]
 
     def move_up(self, dt):
-        self.position[1] += Player.SPEED * dt
+        self.position[1] += int(Player.SPEED * dt * 4) / 4
         self.sprite = self.sprites.sprite_back_default
+        
     def move_down(self, dt):
-        self.position[1] -= Player.SPEED * dt
+        self.position[1] -= int(Player.SPEED * dt * 4) / 4
         self.sprite = self.sprites.sprite_front_default
 
     def move_left(self, dt):
-        self.position[0] -= Player.SPEED * dt
+        self.position[0] -= int(Player.SPEED * dt * 4) / 4
         self.sprite = self.sprites.sprite_left_default
 
     def move_right(self, dt):
-        self.position[0] += Player.SPEED * dt
+        self.position[0] += int(Player.SPEED * dt * 4) / 4
         self.sprite = self.sprites.sprite_right_default
 
     def draw(self):

@@ -1,9 +1,5 @@
-from pyglet import resource
+from pyglet import resource, sprite, graphics
 from xml.etree.ElementTree import parse
-from numpy import zeros, fliplr, int16
-
-import cProfile
-import re
 
 
 class Tileset:
@@ -54,13 +50,6 @@ class Tilemap:
         self.screen_width = self.screen_width/zoom
         self.screen_height = self.screen_height/zoom
 
-    def draw(self):
-
-        for i in range(0, self.tilemap_size[1] - 1):
-            for j in range(0, self.tilemap_size[0] - 1):
-                self.tile_list[self.map[j, i]].blit(j * 16 + self.position[0],
-                                                    i * 16 + self.position[1])
-
     def parse_map(self):
         with open(self.filename) as tmap:
             root = parse(tmap).getroot()
@@ -83,7 +72,8 @@ class Tilemap:
             data = layer[0].text
             layer_size = int(layer.attrib['width']), int(layer.attrib['height'])
 
-            self.map = zeros(layer_size, int16)
+            self.batch = graphics.Batch()
+            self.sprite_list = []
             
             for y, row in enumerate(data.split('\n')[1:-1]):
                 tiles = row.split(',')[:-1]
@@ -96,12 +86,16 @@ class Tilemap:
                     condition = True
                     while condition:
                         try:
-                            self.map[x, y] = tile_id + offset
+                            tile_sprite = sprite.Sprite(
+                                self.tile_list[tile_id + offset], 
+                                x * 16 + self.position[0], 
+                                y * 16 + self.position[1],
+                                batch=self.batch)
+                            self.sprite_list.append(tile_sprite)
                             condition = False
                         except KeyError:
                             offset += 1
-                           
-        self.map = fliplr(self.map)
+                
 
     def adjust_position(self, player_pos) -> None:
         x, y = player_pos
@@ -109,4 +103,8 @@ class Tilemap:
             self.screen_width // 2 - x * 16,
             self.screen_height // 2 - y * 16
         ]
+
+        for i, tile in enumerate(self.sprite_list):
+            tile.x = i % self.tilemap_size[0] * 16 + self.position[0]
+            tile.y = 2 * self.tilemap_size[1] - (i // self.tilemap_size[0]) * 16 + self.position[1]
 

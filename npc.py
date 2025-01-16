@@ -1,9 +1,9 @@
-import math
-import pyglet
+from math import sqrt
+from pyglet import resource
 
 
 class Child:
-    MAX_SPEED = 50.0
+    MAX_SPEED = 40.0
     PERCEPTION_RADIUS = 40.0
 
     SOCIAL_ANXIETY_WEIGHT = 0.1
@@ -16,7 +16,8 @@ class Child:
 
         self.screen_width, self.screen_height = screen_size
 
-        self.sprite = pyglet.resource.image('assets/sprites/player/front-default.png')
+        self.sprite = resource.image('assets/sprites/player/front-default.png', atlas=True)
+        
 
     def get_pos(self):
         return self.position
@@ -39,7 +40,7 @@ class Child:
                             attachmentIssues[1] * Child.ATTACHMENT_ISSUES_WEIGHT +
                             peerPressure[1] * Child.PEER_PRESSURE_WEIGHT)
 
-        speed = math.sqrt(self.velocity[0]**2 + self.velocity[1]**2)
+        speed = sqrt(self.velocity[0]**2 + self.velocity[1]**2)
 
         if speed > Child.MAX_SPEED:
             self.velocity[0] = (self.velocity[0] / speed) * Child.MAX_SPEED
@@ -55,7 +56,7 @@ class Child:
         total = 0
 
         for child in flock:
-            distance = math.sqrt((self.position[0] - child.position[0])**2 + (self.position[1] - child.position[1])**2)
+            distance = sqrt((self.position[0] - child.position[0])**2 + (self.position[1] - child.position[1])**2)
             if 0 < distance < Child.PERCEPTION_RADIUS:
                 steering[0] += child.velocity[0]
                 steering[1] += child.velocity[1]
@@ -65,7 +66,7 @@ class Child:
             steering[0] /= total
             steering[1] /= total
 
-            speed = math.sqrt(steering[0]**2 + steering[1]**2)
+            speed = sqrt(steering[0]**2 + steering[1]**2)
 
             try:
                 steering[0] = steering[0] / speed * Child.MAX_SPEED
@@ -87,7 +88,7 @@ class Child:
         total = 0
 
         for child in flock:
-            distance = math.sqrt((self.position[0] - child.position[0])**2 + (self.position[1] - child.position[1])**2)
+            distance = sqrt((self.position[0] - child.position[0])**2 + (self.position[1] - child.position[1])**2)
             if 0 < distance < Child.PERCEPTION_RADIUS:
                 steering[0] += child.position[0]
                 steering[1] += child.position[1]
@@ -100,7 +101,7 @@ class Child:
             steering[0] -= self.position[0]
             steering[1] -= self.position[1]
 
-            speed = math.sqrt(steering[0]**2 + steering[1]**2)
+            speed = sqrt(steering[0]**2 + steering[1]**2)
 
             try:
                 steering[0] = steering[0] / speed * Child.MAX_SPEED
@@ -123,7 +124,7 @@ class Child:
 
         for child in flock:
             diff = [self.position[0] - child.position[0], self.position[1] - child.position[1]]
-            distance = math.sqrt(diff[0]**2 + diff[1]**2)
+            distance = sqrt(diff[0]**2 + diff[1]**2)
             if 0 < distance < Child.PERCEPTION_RADIUS:
                 steering[0] += diff[0] / distance
                 steering[1] += diff[1] / distance
@@ -133,7 +134,7 @@ class Child:
             steering[0] /= total
             steering[1] /= total
 
-            speed = math.sqrt(steering[0]**2 + steering[1]**2)
+            speed = sqrt(steering[0]**2 + steering[1]**2)
 
             try:
                 steering[0] = steering[0] / speed * Child.MAX_SPEED

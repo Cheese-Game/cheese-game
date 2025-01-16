@@ -32,10 +32,10 @@ def on_draw():
 
     # draw order can be modified here
 
-    tilemap.draw()
+    tilemap.batch.draw()
     player.draw()
     fps_display.draw()
-    # for child in child_flock:
+    #for child in child_flock:
     #     child.update(child_flock, player.get_pos())
 
 
@@ -55,8 +55,9 @@ def on_key_press(symbol, _):
         Game.totalzoom = Game.totalzoom * Game.zoom
         player.get_screen_size(Game.zoom)
         tilemap.get_screen_size(Game.zoom)
-
     elif symbol == pyglet.window.key.MINUS and Game.zoom > 0.101:
+        if game.zoom >1.01:
+            game.zoom=1
         Game.zoom = Game.zoom - 0.1
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         Game.totalzoom = Game.totalzoom * Game.zoom
@@ -105,7 +106,8 @@ shuffle(y_velocities)
 
 for i in range(10):
     child_flock.append(
-        Child(x_positions[i], y_positions[i], x_velocities[i], y_velocities[i],
+        Child(x_positions[i], y_positions[i], 
+              x_velocities[i], y_velocities[i],
               Game.SIZE))
 
 held_movement_keys = []
