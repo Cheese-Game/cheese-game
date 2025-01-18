@@ -1,8 +1,10 @@
 from math import sqrt
 from pyglet import resource
 
+
 class Cow:
     MAX_SPEED = 10.0
+
     def __init__(self, x, y, vx, vy, screen_size) -> None:
         self.position = [x, y]
         self.velocity = [vx, vy]
@@ -11,9 +13,10 @@ class Cow:
 
         self.sprite = resource.image('assets/sprites/creature/cow.png', atlas=True)
 
-    def get_screen_size(self, zoom) -> None:
+    def set_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width / zoom
         self.screen_height = self.screen_height / zoom
+
     def get_pos(self) -> list:
         return self.position
 
@@ -40,8 +43,8 @@ class Child:
         self.sprite = resource.image('assets/sprites/player/front-default.png', atlas=True)
         
     def get_screen_size(self, zoom) -> None:
-      self.screen_width = self.screen_width / zoom
-      self.screen_height = self.screen_height / zoom
+        self.screen_width = self.screen_width / zoom
+        self.screen_height = self.screen_height / zoom
 
     def get_pos(self) -> list:
         return self.position

@@ -5,18 +5,19 @@
     },
     "activeFile": "tilemap/area1.tmx",
     "expandedProjectPaths": [
+        "tileset/cheese_room",
+        "tileset",
         "tilemap",
-        "tileset/area1",
         ".",
-        "tileset"
+        "tileset/area1"
     ],
     "fileStates": {
         "tilemap/area1.tmx": {
             "scale": 3,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 236.5,
-                "y": 156.5
+                "x": 245.16666666666666,
+                "y": 138.16666666666666
             }
         },
         "tileset/area1.tsx": {
@@ -28,9 +29,14 @@
             "dynamicWrapping": false,
             "scaleInDock": 8,
             "scaleInEditor": 32
+        },
+        "tileset/cheese_room/cheese_room.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 23,
+            "scaleInEditor": 64
         }
     },
-    "last.imagePath": "C:/Users/Alex/PycharmProjects/cheese-game/assets/tileset/area1/tiles",
+    "last.imagePath": "C:/Users/Alex/PycharmProjects/cheese-game/assets/tileset/cheese_room",
     "map.fixedSize": true,
     "map.lastUsedFormat": "tmx",
     "map.renderOrder": null,
@@ -39,11 +45,12 @@
     "openFiles": [
         "tileset/area1/area1.tsx",
         "tilemap/area1.tmx",
-        "tilemap/area1.tmx"
+        "tileset/cheese_room/cheese_room.tsx"
     ],
     "project": "cheese.tiled-project",
     "recentFiles": [
         "tileset/area1/area1.tsx",
+        "tileset/cheese_room/cheese_room.tsx",
         "tilemap/area1.tmx",
         "tileset/area1.tsx"
     ],

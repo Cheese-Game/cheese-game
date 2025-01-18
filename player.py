@@ -9,8 +9,9 @@ class Player:
         self.position = [0.0, 0.0]
         self.sprites = PlayerSprites(sprite_path)
         self.sprite = self.sprites.sprite_front_default
+        self.inventory = []
      
-    def get_screen_size(self, zoom) -> None:
+    def set_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width / zoom
         self.screen_height = self.screen_height / zoom
     
@@ -41,7 +42,14 @@ class Player:
 
     def draw(self) -> None:
         self.sprite.blit(self.screen_width / 2, self.screen_height / 2)
-    
+
+    def give(self, item, count):
+        for i in self.inventory:
+            if i['item'] == item:
+                i['count'] += count
+                return
+        self.inventory.append({"item": item, "count": count})
+
 
 class PlayerSprites:
     def __init__(self, sprite_path) -> None:

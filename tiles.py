@@ -23,7 +23,7 @@ class Tileset:
             while path_to_tsx[-1] != '/':
                 path_to_tsx = path_to_tsx[:-1]
 
-            path = path_to_tsx + tile[0].attrib['source']
+            path = path_to_tsx + tile[1].attrib['source']
 
             image = resource.image(path)
 
@@ -42,11 +42,14 @@ class Tilemap:
         self.map = None
         self.position = [self.screen_width // 2, self.screen_height // 2]
 
+        self.batch = graphics.Batch()
         self.tilemap_size = [0, 0]
+
+        self.sprite_list = []
 
         self.parse_map()
 
-    def get_screen_size(self, zoom) -> None:
+    def set_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width/zoom
         self.screen_height = self.screen_height/zoom
 
@@ -63,18 +66,17 @@ class Tilemap:
 
         self.tileset.parse_tileset()
 
-        self.tile_list = self.tileset.get_tiles()
-        
+        self.layer_list = []
+
         for layer in root:
             if layer.tag == 'tileset':
                 continue
 
+            self.tile_list = self.tileset.get_tiles()
+
             data = layer[0].text
             layer_size = int(layer.attrib['width']), int(layer.attrib['height'])
 
-            self.batch = graphics.Batch()
-            self.sprite_list = []
-            
             for y, row in enumerate(data.split('\n')[1:-1]):
                 tiles = row.split(',')[:-1]
 
@@ -95,7 +97,6 @@ class Tilemap:
                             condition = False
                         except KeyError:
                             offset += 1
-                
 
     def adjust_position(self, player_pos) -> None:
         x, y = player_pos

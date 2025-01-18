@@ -5,7 +5,10 @@ from random import shuffle
 from player import Player
 from tiles import Tilemap
 from logger import log
-from npc import Child,Cow
+from npc import Child, Cow
+from hud import *
+from item import Item
+
 
 class Game:
     SIZE = 640, 480
@@ -23,6 +26,7 @@ window = pyglet.window.Window(*Game.SIZE, vsync=False)
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 Game.zoom = 2.0
 
+
 @window.event
 def on_draw():
 
@@ -35,8 +39,13 @@ def on_draw():
     player.draw()
     cow.draw(player.get_pos()) 
     fps_display.draw()
-    for child in child_flock:
-         child.update(child_flock, player.get_pos())
+
+    if hud.inventory_open:
+        hud.inventory_batch.draw()
+
+    # for child in child_flock:
+    #      child.update(child_flock, player.get_pos())
+
 
 @window.event
 def on_key_press(symbol, _) -> None:
@@ -51,30 +60,33 @@ def on_key_press(symbol, _) -> None:
     elif symbol == pyglet.window.key.PLUS and Game.zoom < 3.0:
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         Game.totalzoom = Game.totalzoom * Game.zoom
-        player.get_screen_size(Game.zoom)
-        tilemap.get_screen_size(Game.zoom)
-        cow.get_screen_size(Game.zoom)
-
+        player.set_screen_size(Game.zoom)
+        tilemap.set_screen_size(Game.zoom)
+        cow.set_screen_size(Game.zoom)
     elif symbol == pyglet.window.key.MINUS and Game.zoom > 0.101:
-        
         window.view = window.view.scale((1/Game.zoom, 1/Game.zoom, Game.zoom))
         Game.totalzoom = Game.totalzoom * Game.zoom
-        player.get_screen_size(1/Game.zoom)
-        tilemap.get_screen_size(1/Game.zoom)
-        cow.get_screen_size(Game.zoom)
+        player.set_screen_size(1/Game.zoom)
+        tilemap.set_screen_size(1/Game.zoom)
+        cow.set_screen_size(Game.zoom)
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
-        
-        player.get_screen_size(Game.zoom)
-        tilemap.get_screen_size(Game.zoom)
-        cow.get_screen_size(Game.zoom)
+        player.set_screen_size(Game.zoom)
+        tilemap.set_screen_size(Game.zoom)
+        cow.set_screen_size(Game.zoom)
         Game.zoom = 1.1
         Game.totalzoom = 1.0
     elif symbol == pyglet.window.key.B:
         pyglet.app.exit()
     elif symbol == pyglet.window.key.C:
         print(cow.get_pos())
+    elif symbol == pyglet.window.key.E:
+        if hud.inventory_open:
+            hud.close_inventory()
+        else:
+            hud.open_inventory()
+
 
 @window.event
 def on_key_release(symbol, _) -> None:
@@ -93,7 +105,10 @@ fps_display = pyglet.window.FPSDisplay(window=window)
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE)
-cow=Cow(10.0,10.0,10,10,Game.SIZE)
+
+cow = Cow(10.0, 10.0, 10, 10, Game.SIZE)
+
+hud = Hud(Game.SIZE, player)
 
 child_flock = []
 
