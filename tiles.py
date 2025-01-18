@@ -3,15 +3,15 @@ from xml.etree.ElementTree import parse
 
 
 class Tileset:
-    def __init__(self, filename):
+    def __init__(self, filename) -> None:
         self.filename = filename
 
         self.tiles = []
 
-    def get_tiles(self):
+    def get_tiles(self) -> list:
         return self.tiles
     
-    def parse_tileset(self):
+    def parse_tileset(self) -> None:
         with open(self.filename) as tset:
             root = parse(tset).getroot()
         
@@ -34,7 +34,7 @@ class Tileset:
 
 
 class Tilemap:
-    def __init__(self, filename, screen_size):
+    def __init__(self, filename, screen_size) -> None:
         self.filename = filename
         self.screen_width, self.screen_height = screen_size
 
@@ -46,11 +46,11 @@ class Tilemap:
 
         self.parse_map()
 
-    def get_screen_size(self, zoom):
+    def get_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width/zoom
         self.screen_height = self.screen_height/zoom
 
-    def parse_map(self):
+    def parse_map(self) -> None:
         with open(self.filename) as tmap:
             root = parse(tmap).getroot()
 
@@ -106,5 +106,5 @@ class Tilemap:
 
         for i, tile in enumerate(self.sprite_list):
             tile.x = i % self.tilemap_size[0] * 16 + self.position[0]
-            tile.y = 2 * self.tilemap_size[1] - (i // self.tilemap_size[0]) * 16 + self.position[1]
+            tile.y = (self.tilemap_size[1] - i // self.tilemap_size[0] - 1) * 16 + self.position[1]
 

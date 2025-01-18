@@ -1,16 +1,37 @@
 from math import sqrt
 from pyglet import resource
 
+class Cow:
+    MAX_SPEED = 10.0
+    def __init__(self, x, y, vx, vy, screen_size) -> None:
+        self.position = [x, y]
+        self.velocity = [vx, vy]
+
+        self.screen_width, self.screen_height = screen_size
+
+        self.sprite = resource.image('assets/sprites/creature/cow.png', atlas=True)
+
+    def get_screen_size(self, zoom) -> None:
+        self.screen_width = self.screen_width / zoom
+        self.screen_height = self.screen_height / zoom
+    def get_pos(self) -> list:
+        return self.position
+
+    def draw(self, player_pos) -> None:
+        x, y = player_pos
+        self.sprite.blit(self.position[0] - x * 16,
+                         self.position[1] - y * 16)
+    
 
 class Child:
     MAX_SPEED = 40.0
-    PERCEPTION_RADIUS = 40.0
+    PERCEPTION_RADIUS = 100.0
 
     SOCIAL_ANXIETY_WEIGHT = 0.1
     PEER_PRESSURE_WEIGHT = 0.01
     ATTACHMENT_ISSUES_WEIGHT = 0.01
 
-    def __init__(self, x, y, vx, vy, screen_size):
+    def __init__(self, x, y, vx, vy, screen_size) -> None:
         self.position = [x, y]
         self.velocity = [vx, vy]
 
@@ -18,16 +39,19 @@ class Child:
 
         self.sprite = resource.image('assets/sprites/player/front-default.png', atlas=True)
         
+    def get_screen_size(self, zoom) -> None:
+      self.screen_width = self.screen_width / zoom
+      self.screen_height = self.screen_height / zoom
 
-    def get_pos(self):
+    def get_pos(self) -> list:
         return self.position
 
-    def draw(self, player_pos):
+    def draw(self, player_pos) -> None:
         x, y = player_pos
         self.sprite.blit(self.position[0] - x * 16,
                          self.position[1] - y * 16)
 
-    def update(self, flock, player_pos):
+    def update(self, flock, player_pos) -> None:
         socialAnxiety = self.social_anxiety(flock)
         attachmentIssues = self.attachment_issues(flock)
         peerPressure = self.peer_pressure(flock)
@@ -51,7 +75,7 @@ class Child:
         
         self.draw(player_pos)
 
-    def social_anxiety(self, flock):
+    def social_anxiety(self, flock) -> list:
         steering = [0.0, 0.0]
         total = 0
 
@@ -83,7 +107,7 @@ class Child:
 
         return steering
 
-    def attachment_issues(self, flock):
+    def attachment_issues(self, flock) -> list:
         steering = [0.0, 0.0]
         total = 0
 
@@ -118,7 +142,7 @@ class Child:
 
         return steering
 
-    def peer_pressure(self, flock):
+    def peer_pressure(self, flock) -> list:
         steering = [0.0, 0.0]
         total = 0
 

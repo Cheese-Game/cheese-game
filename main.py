@@ -5,22 +5,23 @@ from random import shuffle
 from player import Player
 from tiles import Tilemap
 from logger import log
-from npc import Child
-
-pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+from npc import Child,Cow
 
 class Game:
     SIZE = 640, 480
     zoom = 1.0
     totalzoom = 1.0
 
-    def __init__(self):
+    def __init__(self) -> None:
         pyglet.app.run()
 
 
+pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
+pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
+
 window = pyglet.window.Window(*Game.SIZE, vsync=False)
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
+Game.zoom = 2.0
 
 @window.event
 def on_draw():
@@ -30,17 +31,15 @@ def on_draw():
     window.clear()
     pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D, pyglet.gl.GL_TEXTURE_MAG_FILTER, pyglet.gl.GL_NEAREST)
 
-    # draw order can be modified here
-
     tilemap.batch.draw()
     player.draw()
+    cow.draw(player.get_pos()) 
     fps_display.draw()
-    #for child in child_flock:
-    #     child.update(child_flock, player.get_pos())
-
+    for child in child_flock:
+         child.update(child_flock, player.get_pos())
 
 @window.event
-def on_key_press(symbol, _):
+def on_key_press(symbol, _) -> None:
     if symbol == pyglet.window.key.W:
         pyglet.clock.schedule_interval(player.move_up, 1 / 60.0)
     elif symbol == pyglet.window.key.A:
@@ -50,32 +49,35 @@ def on_key_press(symbol, _):
     elif symbol == pyglet.window.key.D:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
     elif symbol == pyglet.window.key.PLUS and Game.zoom < 3.0:
-        Game.zoom = Game.zoom + 0.1
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         Game.totalzoom = Game.totalzoom * Game.zoom
         player.get_screen_size(Game.zoom)
         tilemap.get_screen_size(Game.zoom)
+        cow.get_screen_size(Game.zoom)
+
     elif symbol == pyglet.window.key.MINUS and Game.zoom > 0.101:
-        if game.zoom >1.01:
-            game.zoom=1
-        Game.zoom = Game.zoom - 0.1
-        window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
+        
+        window.view = window.view.scale((1/Game.zoom, 1/Game.zoom, Game.zoom))
         Game.totalzoom = Game.totalzoom * Game.zoom
-        player.get_screen_size(Game.zoom)
-        tilemap.get_screen_size(Game.zoom)
+        player.get_screen_size(1/Game.zoom)
+        tilemap.get_screen_size(1/Game.zoom)
+        cow.get_screen_size(Game.zoom)
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
+        
         player.get_screen_size(Game.zoom)
         tilemap.get_screen_size(Game.zoom)
-        Game.zoom = 1.0
+        cow.get_screen_size(Game.zoom)
+        Game.zoom = 1.1
         Game.totalzoom = 1.0
     elif symbol == pyglet.window.key.B:
         pyglet.app.exit()
-
+    elif symbol == pyglet.window.key.C:
+        print(cow.get_pos())
 
 @window.event
-def on_key_release(symbol, _):
+def on_key_release(symbol, _) -> None:
     if symbol == pyglet.window.key.W:
         pyglet.clock.unschedule(player.move_up)
     elif symbol == pyglet.window.key.A:
@@ -91,6 +93,7 @@ fps_display = pyglet.window.FPSDisplay(window=window)
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE)
+cow=Cow(10.0,10.0,10,10,Game.SIZE)
 
 child_flock = []
 
