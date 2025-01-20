@@ -49,7 +49,7 @@ def on_draw():
 
 
 @window.event
-def on_key_press(symbol, _) -> None:
+def on_key_press(symbol, modifiers) -> None:
     if symbol == pyglet.window.key.W:
         pyglet.clock.schedule_interval(player.move_up, 1 / 60.0)
     elif symbol == pyglet.window.key.A:
@@ -58,7 +58,7 @@ def on_key_press(symbol, _) -> None:
         pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
     elif symbol == pyglet.window.key.D:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
-    elif symbol == pyglet.window.key.PLUS and Game.zoom < 3.0:
+    elif (symbol == pyglet.window.key.PLUS or (symbol == pyglet.window.key.EQUAL and modifiers and pyglet.window.key.MOD_SHIFT)) and Game.zoom < 3.0:
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         Game.totalzoom = Game.totalzoom * Game.zoom
         player.set_screen_size(Game.zoom)

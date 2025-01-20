@@ -47,6 +47,8 @@ class Tilemap:
 
         self.sprite_list = []
 
+        self.tile_list = None
+
         self.parse_map()
 
     def set_screen_size(self, zoom) -> None:
@@ -66,30 +68,30 @@ class Tilemap:
 
         self.tileset.parse_tileset()
 
-        self.layer_list = []
+        tile_list = self.tileset.get_tiles()
 
         for layer in root:
             if layer.tag == 'tileset':
                 continue
 
-            self.tile_list = self.tileset.get_tiles()
-
             data = layer[0].text
-            layer_size = int(layer.attrib['width']), int(layer.attrib['height'])
+
+            offset = 0
 
             for y, row in enumerate(data.split('\n')[1:-1]):
                 tiles = row.split(',')[:-1]
 
-                offset = 0
-                
                 for x, tile in enumerate(tiles):
-                    tile_id = int(tile) - 1
+                    if tile == "0":
+                        continue
+
+                    tile_id = int(tile) - 1 + offset
 
                     condition = True
                     while condition:
                         try:
                             tile_sprite = sprite.Sprite(
-                                self.tile_list[tile_id + offset], 
+                                tile_list[tile_id],
                                 x * 16 + self.position[0], 
                                 y * 16 + self.position[1],
                                 batch=self.batch)
