@@ -14,15 +14,28 @@ class Hud:
 
         font.add_file('assets/font/PixelatedElegance.ttf')
 
-        self.create_inventory()
+        self.hud_components = []
+        self.hud_batch = graphics.Batch()
+
+        self.create_hud()
+
+    def set_screen_size(self, zoom) -> None:
+        self.screen_width = self.screen_width / zoom
+        self.screen_height = self.screen_height / zoom
+
+    def create_hud(self) -> None:
+        
+        bg = shapes.Rectangle(x=self.screen_height/16, y=self.screen_height/16, width=64, height=64, color=(0, 0, 0, 128), batch=self.hud_batch)
+        self.hud_components.append(bg)
+        
 
     def create_inventory(self) -> None:
-        bg = shapes.Rectangle(x=32, y=32, width=256, height=416, color=(0, 0, 0, 128), batch=self.inventory_batch)
+        bg = shapes.Rectangle(x=self.screen_height/16, y=self.screen_height/16, width=0.4*self.screen_width, height=self.screen_height*0.875, color=(0, 0, 0, 128), batch=self.inventory_batch)
         self.inventory_components.append(bg)
 
         title = text.Label('Inventory',
-                           font_name="Pixelated Elegance", font_size=18,
-                           x=48, y=self.screen_height-48, anchor_x='left', anchor_y='top',
+                           font_name="Pixelated Elegance", font_size=0.03125*self.screen_width,
+                           x=self.screen_height*0.09375, y=self.screen_height-48, anchor_x='left', anchor_y='top',
                            batch=self.inventory_batch)
         self.inventory_components.append(title)
 
@@ -34,9 +47,10 @@ class Hud:
             self.inventory_components.append(item_text)
 
     def open_inventory(self) -> None:
-        log("Inventory opened")
+        self.create_inventory()
         self.inventory_open = True
 
     def close_inventory(self) -> None:
-        log("Inventory closed")
+        for i in self.inventory_components:
+            i.batch = None
         self.inventory_open = False

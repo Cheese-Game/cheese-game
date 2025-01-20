@@ -3,7 +3,7 @@ from pyglet import resource
 
 
 class Cow:
-    MAX_SPEED = 10.0
+    MAX_SPEED = 30.0
 
     def __init__(self, x, y, vx, vy, screen_size) -> None:
         self.position = [x, y]
@@ -13,7 +13,7 @@ class Cow:
 
         self.sprite = resource.image('assets/sprites/creature/cow.png', atlas=True)
 
-    def set_screen_size(self, zoom) -> None:
+    def set_screen_size(self, zoom, player_pos) -> None:
         self.screen_width = self.screen_width / zoom
         self.screen_height = self.screen_height / zoom
 
@@ -22,9 +22,19 @@ class Cow:
 
     def draw(self, player_pos) -> None:
         x, y = player_pos
-        self.sprite.blit(self.position[0] - x * 16,
-                         self.position[1] - y * 16)
+        #print(640/self.screen_width)
+        self.sprite.blit(((self.position[0] - x * 16)),
+                         ((self.position[1] - y * 16)))
     
+    def adjust_position(self, player_pos) -> None:
+        x, y = player_pos
+        self.position = [
+            self.screen_width // 2 - x * 16,
+            self.screen_height // 2 - y * 16
+        ]
+        
+
+
 
 class Child:
     MAX_SPEED = 40.0
@@ -144,7 +154,7 @@ class Child:
             steering[1] -= self.velocity[1]
 
         return steering
-
+    
     def peer_pressure(self, flock) -> list:
         steering = [0.0, 0.0]
         total = 0

@@ -43,12 +43,16 @@ class Player:
     def draw(self) -> None:
         self.sprite.blit(self.screen_width / 2, self.screen_height / 2)
 
-    def give(self, item, count):
+    def give(self, item, count, *args, **kwargs):
         for i in self.inventory:
             if i['item'] == item:
                 i['count'] += count
                 return
-        self.inventory.append({"item": item, "count": count})
+        properties = kwargs.get('properties', None)
+        if properties is not None:
+            self.inventory.append({"item": item, "count": count, "properties": properties})
+        else:
+            self.inventory.append({"item": item, "count": count})
 
 
 class PlayerSprites:

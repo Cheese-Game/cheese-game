@@ -2,12 +2,13 @@ import pyglet
 
 from random import shuffle
 
+import item
+
 from player import Player
 from tiles import Tilemap
 from logger import log
 from npc import Child, Cow
-from hud import *
-from item import Item
+from hud import Hud
 
 
 class Game:
@@ -31,13 +32,13 @@ Game.zoom = 2.0
 def on_draw():
 
     tilemap.adjust_position(player.get_pos())
-
     window.clear()
     pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D, pyglet.gl.GL_TEXTURE_MAG_FILTER, pyglet.gl.GL_NEAREST)
 
     tilemap.batch.draw()
     player.draw()
     cow.draw(player.get_pos()) 
+    hud.hud_batch.draw()
     fps_display.draw()
 
     if hud.inventory_open:
@@ -62,20 +63,29 @@ def on_key_press(symbol, _) -> None:
         Game.totalzoom = Game.totalzoom * Game.zoom
         player.set_screen_size(Game.zoom)
         tilemap.set_screen_size(Game.zoom)
-        cow.set_screen_size(Game.zoom)
+        hud.set_screen_size(Game.zoom)
+        cow.set_screen_size(Game.zoom,player.get_pos())
+        if hud.inventory_open:
+            hud.close_inventory()
     elif symbol == pyglet.window.key.MINUS and Game.zoom > 0.101:
         window.view = window.view.scale((1/Game.zoom, 1/Game.zoom, Game.zoom))
-        Game.totalzoom = Game.totalzoom * Game.zoom
+        Game.totalzoom = Game.totalzoom / Game.zoom
         player.set_screen_size(1/Game.zoom)
         tilemap.set_screen_size(1/Game.zoom)
-        cow.set_screen_size(Game.zoom)
+        hud.set_screen_size(Game.zoom)
+        cow.set_screen_size(1/Game.zoom,player.get_pos())
+        if hud.inventory_open:
+            hud.close_inventory()
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         player.set_screen_size(Game.zoom)
         tilemap.set_screen_size(Game.zoom)
-        cow.set_screen_size(Game.zoom)
-        Game.zoom = 1.1
+        hud.set_screen_size(Game.zoom)
+        cow.set_screen_size(Game.zoom,player.get_pos())
+        if hud.inventory_open:
+            hud.close_inventory()
+        Game.zoom = 2.0
         Game.totalzoom = 1.0
     elif symbol == pyglet.window.key.B:
         pyglet.app.exit()
@@ -106,7 +116,7 @@ tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE)
 
-cow = Cow(10.0, 10.0, 10, 10, Game.SIZE)
+cow = Cow(400.0, 300.0, 10, 10, Game.SIZE)
 
 hud = Hud(Game.SIZE, player)
 
@@ -129,5 +139,7 @@ for i in range(10):
               Game.SIZE))
 
 held_movement_keys = []
+
+player.give(item.MUG, 1)
 
 game = Game()
