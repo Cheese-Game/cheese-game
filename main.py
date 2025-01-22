@@ -18,6 +18,7 @@ class Game:
     zoom = 1.0
     totalzoom = 1.0
     milk=False
+    
     def __init__(self) -> None:
         pyglet.app.run()
 
