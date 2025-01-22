@@ -2,6 +2,8 @@ import pyglet
 
 from random import shuffle
 
+from pyglet.window.key import G
+
 import item
 
 from player import Player
@@ -15,7 +17,7 @@ class Game:
     SIZE = 640, 480
     zoom = 1.0
     totalzoom = 1.0
-
+    milk=False
     def __init__(self) -> None:
         pyglet.app.run()
 
@@ -26,6 +28,7 @@ pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
 window = pyglet.window.Window(*Game.SIZE, vsync=False)
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 Game.zoom = 2.0
+window.set_mouse_cursor(window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR))
 
 
 @window.event
@@ -44,8 +47,8 @@ def on_draw():
     if hud.inventory_open:
         hud.inventory_batch.draw()
 
-    # for child in child_flock:
-    #      child.update(child_flock, player.get_pos())
+    for child in child_flock:
+          child.update(child_flock, player.get_pos())
 
 
 @window.event
@@ -96,7 +99,19 @@ def on_key_press(symbol, modifiers) -> None:
             hud.close_inventory()
         else:
             hud.open_inventory()
+    elif symbol == pyglet.window.key.M:
+        playerpos=player.get_pos()
+        cowpos=cow.get_pos()
+        if playerpos[0] < cowpos[0]+10 and playerpos[0]>cowpos[0]-10 and playerpos[1] < cowpos[1]+10 and playerpos[1]>cowpos[1]-10:
+            if Game.milk:
+                print("milking possible")
+                Game.milk=True
 
+            else:
+                Game.milk=False
+                print("closing milking")
+        else:
+            print("no cow")
 
 @window.event
 def on_key_release(symbol, _) -> None:
@@ -108,23 +123,22 @@ def on_key_release(symbol, _) -> None:
         pyglet.clock.unschedule(player.move_down)
     elif symbol == pyglet.window.key.D:
         pyglet.clock.unschedule(player.move_right)
-
-
+    
 fps_display = pyglet.window.FPSDisplay(window=window)
 
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE)
 
-cow = Cow(400.0, 300.0, 10, 10, Game.SIZE)
+cow = Cow(3.0, 3.0, 10, 10, Game.SIZE)
 
 hud = Hud(Game.SIZE, player)
 
 child_flock = []
 
-x_positions = [110, 120, 130, 140, 150, 160, 170, 180, 190, 200]
+x_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 y_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-x_velocities = [-25, -20, -15, -10, -5, 5, 10, 15, 20, 25]
+x_velocities = [-20, -5, -15, -10, -5, 5, 10, 15, 20, 5]
 y_velocities = [-25, -20, -15, -10, -5, 5, 10, 15, 20, 25]
 
 shuffle(x_positions)

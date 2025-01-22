@@ -1,5 +1,6 @@
-from math import sqrt
+from math import sqrt, acos
 from pyglet import resource
+from random import randint
 
 
 class Cow:
@@ -11,7 +12,7 @@ class Cow:
 
         self.screen_width, self.screen_height = screen_size
 
-        self.sprite = resource.image('assets/sprites/creature/cow.png', atlas=True)
+        self.sprite = resource.image(f'assets/sprites/creature/cow{randint(1,2)}.png', atlas=True)
 
     def set_screen_size(self, zoom, player_pos) -> None:
         self.screen_width = self.screen_width / zoom
@@ -22,18 +23,16 @@ class Cow:
 
     def draw(self, player_pos) -> None:
         x, y = player_pos
-        #print(640/self.screen_width)
-        self.sprite.blit(((self.position[0] - x * 16)),
-                         ((self.position[1] - y * 16)))
-    
-    def adjust_position(self, player_pos) -> None:
-        x, y = player_pos
-        self.position = [
-            self.screen_width // 2 - x * 16,
-            self.screen_height // 2 - y * 16
-        ]
-        
 
+        self.sprite.blit(self.screen_width // 2 - x * 16 + self.position[0] * 16,
+                         self.screen_height // 2 - y * 16 + self.position[1] * 16)
+
+    def set_direction(self, direction) -> None:
+        self.velocity = [acos(direction), acos(direction)]
+
+    def move(self, dt) -> None:
+        self.position[0] += self.velocity[0]
+        self.position[1] += self.velocity[1]
 
 
 class Child:
@@ -61,8 +60,8 @@ class Child:
 
     def draw(self, player_pos) -> None:
         x, y = player_pos
-        self.sprite.blit(self.position[0] - x * 16,
-                         self.position[1] - y * 16)
+        self.sprite.blit(self.screen_width // 2 - x * 16 + self.position[0],
+             self.screen_height // 2 - y * 16 + self.position[1])
 
     def update(self, flock, player_pos) -> None:
         socialAnxiety = self.social_anxiety(flock)
