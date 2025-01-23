@@ -10,6 +10,7 @@ class Player:
         self.sprites = PlayerSprites(sprite_path)
         self.sprite = self.sprites.sprite_front_default
         self.inventory = []
+        self.current_item = None
      
     def set_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width / zoom
@@ -53,7 +54,12 @@ class Player:
             self.inventory.append({"item": item, "count": count, "properties": properties})
         else:
             self.inventory.append({"item": item, "count": count})
-
+    
+    def set_held_item(self, index) -> None:
+        self.current_item = self.inventory[index]
+    
+    def get_held_item(self) -> dict:
+        return self.current_item
 
 class PlayerSprites:
     def __init__(self, sprite_path) -> None:

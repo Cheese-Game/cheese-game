@@ -1,4 +1,4 @@
-from pyglet import shapes, graphics, text, font
+from pyglet import shapes, graphics, text, font, resource, sprite
 
 from logger import log
 
@@ -27,6 +27,14 @@ class Hud:
         
         bg = shapes.Rectangle(x=self.screen_height/16, y=self.screen_height/16, width=64, height=64, color=(0, 0, 0, 128), batch=self.hud_batch)
         self.hud_components.append(bg)
+
+        current_item = self.player.get_held_item()
+
+        item_img = resource.image(f"assets/sprites/item/{current_item['item'].item_id}.png")
+        item_sprite = sprite.Sprite(item_img, x=self.screen_height/16, y=self.screen_height/16, batch=self.hud_batch)
+        item_sprite.scale = 4.0
+        self.hud_components.append(item_sprite)
+
         
 
     def create_inventory(self) -> None:

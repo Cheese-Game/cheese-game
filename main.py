@@ -18,7 +18,7 @@ class Game:
     zoom = 1.0
     totalzoom = 1.0
     milk=False
-    
+
     def __init__(self) -> None:
         pyglet.app.run()
 
@@ -101,18 +101,19 @@ def on_key_press(symbol, modifiers) -> None:
         else:
             hud.open_inventory()
     elif symbol == pyglet.window.key.M:
-        playerpos=player.get_pos()
-        cowpos=cow.get_pos()
-        if playerpos[0] < cowpos[0]+10 and playerpos[0]>cowpos[0]-10 and playerpos[1] < cowpos[1]+10 and playerpos[1]>cowpos[1]-10:
-            if Game.milk:
-                print("milking possible")
-                Game.milk=True
+        playerpos = player.get_pos()
+        cowpos = cow.get_pos()
 
-            else:
-                Game.milk=False
-                print("closing milking")
-        else:
+        if playerpos[0] < cowpos[0]+2 or playerpos[0] < cowpos[0]-2 or playerpos[1] < cowpos[1]+2 or playerpos[1] < cowpos[1]-2:
             print("no cow")
+            return
+        
+        if Game.milk:
+            Game.milk=False
+            print("closing milking")
+        else:
+            print("milking possible")
+            Game.milk=True
 
 @window.event
 def on_key_release(symbol, _) -> None:
@@ -130,6 +131,8 @@ fps_display = pyglet.window.FPSDisplay(window=window)
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE)
+player.give(item.MUG, 1)
+player.set_held_item(0)
 
 cow = Cow(3.0, 3.0, 10, 10, Game.SIZE)
 
@@ -154,7 +157,5 @@ for i in range(10):
               Game.SIZE))
 
 held_movement_keys = []
-
-player.give(item.MUG, 1)
 
 game = Game()
