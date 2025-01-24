@@ -7,17 +7,17 @@
     "expandedProjectPaths": [
         "tileset/cheese_room",
         "tilemap",
-        ".",
         "tileset/area1",
-        "tileset"
+        "tileset",
+        "."
     ],
     "fileStates": {
         "tilemap/area1.tmx": {
-            "scale": 3,
+            "scale": 2,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 243.83333333333331,
-                "y": 136.83333333333331
+                "x": 221.75,
+                "y": 144.25
             }
         },
         "tileset/area1.tsx": {
@@ -44,14 +44,13 @@
     "map.tileWidth": 16,
     "openFiles": [
         "tileset/area1/area1.tsx",
-        "tilemap/area1.tmx",
-        "tileset/cheese_room/cheese_room.tsx"
+        "tilemap/area1.tmx"
     ],
     "project": "cheese.tiled-project",
     "recentFiles": [
         "tileset/area1/area1.tsx",
-        "tileset/cheese_room/cheese_room.tsx",
         "tilemap/area1.tmx",
+        "tileset/cheese_room/cheese_room.tsx",
         "tileset/area1.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
