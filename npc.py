@@ -1,5 +1,5 @@
 from math import sqrt, acos
-from pyglet import resource
+from pyglet import resource, sprite
 from random import randint
 
 
@@ -12,7 +12,9 @@ class Cow:
 
         self.screen_width, self.screen_height = screen_size
 
-        self.sprite = resource.image(f'assets/sprites/creature/cow{randint(1,2)}.png', atlas=True)
+        self.image = resource.image(f'assets/sprites/creature/cow{randint(1,2)}.png', atlas=True)
+
+        self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1])
 
     def set_screen_size(self, zoom, player_pos) -> None:
         self.screen_width = self.screen_width / zoom
@@ -24,8 +26,10 @@ class Cow:
     def draw(self, player_pos) -> None:
         x, y = player_pos
 
-        self.sprite.blit(self.screen_width // 2 - x * 16 + self.position[0] * 16,
-                         self.screen_height // 2 - y * 16 + self.position[1] * 16)
+        self.sprite.x = self.screen_width // 2 - x * 16 + self.position[0] * 16
+        self.sprite.y = self.screen_height // 2 - y * 16 + self.position[1] * 16
+
+        self.sprite.draw()
 
     def set_direction(self, direction) -> None:
         self.velocity = [acos(direction), acos(direction)]
@@ -43,13 +47,14 @@ class Child:
     PEER_PRESSURE_WEIGHT = 0.01
     ATTACHMENT_ISSUES_WEIGHT = 0.01
 
-    def __init__(self, x, y, vx, vy, screen_size) -> None:
+    def __init__(self, x, y, vx, vy, batch, screen_size) -> None:
         self.position = [x, y]
         self.velocity = [vx, vy]
 
         self.screen_width, self.screen_height = screen_size
 
-        self.sprite = resource.image('assets/sprites/player/front-default.png', atlas=True)
+        self.image = resource.image('assets/sprites/player/front-default.png', atlas=True)
+        self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=batch)
         
     def get_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width / zoom
@@ -58,10 +63,11 @@ class Child:
     def get_pos(self) -> list:
         return self.position
 
-    def draw(self, player_pos) -> None:
+    def adjust_position(self, player_pos) -> None:
         x, y = player_pos
-        self.sprite.blit(self.screen_width // 2 - x * 16 + self.position[0],
-             self.screen_height // 2 - y * 16 + self.position[1])
+
+        self.sprite.x = self.screen_width // 2 - x * 16 + self.position[0]
+        self.sprite.y = self.screen_height // 2 - y * 16 + self.position[1]
 
     def update(self, flock, player_pos) -> None:
         socialAnxiety = self.social_anxiety(flock)
@@ -85,7 +91,7 @@ class Child:
         self.position[0] += self.velocity[0]
         self.position[1] += self.velocity[1]
         
-        self.draw(player_pos)
+        self.adjust_position(player_pos)
 
     def social_anxiety(self, flock) -> list:
         steering = [0.0, 0.0]

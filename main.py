@@ -2,8 +2,6 @@ import pyglet
 
 from random import shuffle
 
-from pyglet.window.key import G
-
 import item
 
 from player import Player
@@ -24,11 +22,10 @@ class Game:
         log("Game running")
 
 
-pyglet.gl.glEnable(pyglet.gl.GL_BLEND)
-pyglet.gl.glBlendFunc(pyglet.gl.GL_SRC_ALPHA, pyglet.gl.GL_ONE_MINUS_SRC_ALPHA)
-
 window = pyglet.window.Window(*Game.SIZE, vsync=False)
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
+window.set_caption("Cheese Game")
+window.set_icon(pyglet.resource.image("assets/sprites/player/front-default.png"))
 Game.zoom = 2.0
 window.set_mouse_cursor(window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR))
 
@@ -51,6 +48,7 @@ def on_draw():
 
     for child in child_flock:
           child.update(child_flock, player.get_pos())
+    child_batch.draw()
 
 
 def zoom() -> None:
@@ -145,11 +143,13 @@ shuffle(y_positions)
 shuffle(x_velocities)
 shuffle(y_velocities)
 
+child_batch = pyglet.graphics.Batch()
+
 for i in range(10):
     child_flock.append(
         Child(x_positions[i], y_positions[i], 
               x_velocities[i], y_velocities[i],
-              Game.SIZE))
+              child_batch, Game.SIZE))
 
 held_movement_keys = []
 

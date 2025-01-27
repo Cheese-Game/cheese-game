@@ -48,10 +48,12 @@ class Player:
         self.sprite.draw()
 
     def give(self, item, count, properties=None):
+        # checks if item is already in inventory
         for i in self.inventory:
             if i['item'] == item:
                 i['count'] += count
                 return
+            
         if properties is not None:
             self.inventory.append({"item": item, "count": count, "properties": properties})
         else:
