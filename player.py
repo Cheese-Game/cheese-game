@@ -12,12 +12,12 @@ class Player:
         self.sprite = self.sprites.sprite_front_default
         self.inventory = []
         self.current_item = None
-     
-    def set_screen_size(self, zoom) -> None:
-        self.screen_width = self.screen_width / zoom
-        self.screen_height = self.screen_height / zoom
 
-        self.sprites.set_screen_size(self.screen_width, self.screen_height)
+    def set_screen_size(self, zoom) -> None:
+        self.screen_width /= zoom
+        self.screen_height /= zoom
+
+        self.sprites.adjust_sprite_positions(self.screen_width, self.screen_height)
     
     def get_pos(self) -> list[float]:
         return self.position
@@ -84,15 +84,12 @@ class PlayerSprites:
         self.sprite_left_default = sprite.Sprite(img_left_default, x=self.screen_width // 2, y=self.screen_height // 2)
         self.sprite_right_default = sprite.Sprite(img_right_default, x=self.screen_width // 2, y=self.screen_height // 2)
     
-    def set_screen_size(self, screen_width, screen_height) -> None:
-        self.screen_width = screen_width
-        self.screen_height = screen_height
-
-        self.sprite_front_default.x = self.screen_width // 2
-        self.sprite_front_default.y = self.screen_height // 2
-        self.sprite_back_default.x = self.screen_width // 2
-        self.sprite_back_default.y = self.screen_height // 2
-        self.sprite_left_default.x = self.screen_width // 2
-        self.sprite_left_default.y = self.screen_height // 2
-        self.sprite_right_default.x = self.screen_width // 2
-        self.sprite_right_default.y = self.screen_height // 2
+    def adjust_sprite_positions(self, screen_width, screen_height) -> None:
+        self.sprite_front_default.x = screen_width // 2 - self.sprite_front_default.width // 2
+        self.sprite_front_default.y = screen_height // 2 - self.sprite_front_default.height // 2
+        self.sprite_back_default.x = screen_width // 2 - self.sprite_back_default.width // 2
+        self.sprite_back_default.y = screen_height // 2 - self.sprite_back_default.height // 2
+        self.sprite_left_default.x = screen_width // 2 - self.sprite_left_default.width // 2
+        self.sprite_left_default.y = screen_height // 2 - self.sprite_left_default.height // 2
+        self.sprite_right_default.x = screen_width // 2 - self.sprite_right_default.width // 2
+        self.sprite_right_default.y = screen_height // 2 - self.sprite_right_default.height // 2

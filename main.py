@@ -51,11 +51,19 @@ def on_draw():
     child_batch.draw()
 
 
-def zoom() -> None:
-    player.set_screen_size(Game.zoom)
-    tilemap.set_screen_size(Game.zoom)
-    hud.set_screen_size(Game.zoom)
-    cow.set_screen_size(Game.zoom,player.get_pos())
+def zoom(recip=False) -> None:
+    log("zoom")
+    if recip:
+        player.set_screen_size(1/Game.zoom)
+        tilemap.set_screen_size(1/Game.zoom)
+        hud.set_screen_size(1/Game.zoom)
+        cow.set_screen_size(1/Game.zoom, player.get_pos())
+    else:
+        player.set_screen_size(Game.zoom)
+        tilemap.set_screen_size(Game.zoom)
+        hud.set_screen_size(Game.zoom)
+        cow.set_screen_size(Game.zoom, player.get_pos())
+
     if hud.inventory_open:
         hud.close_inventory()
 
@@ -72,12 +80,12 @@ def on_key_press(symbol, modifiers) -> None:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
     elif (symbol == pyglet.window.key.PLUS or (symbol == pyglet.window.key.EQUAL and modifiers and pyglet.window.key.MOD_SHIFT)) and Game.zoom < 3.0:
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
-        Game.totalzoom = Game.totalzoom * Game.zoom
+        Game.totalzoom *= Game.zoom
         zoom()
     elif symbol == pyglet.window.key.MINUS and Game.zoom > 0.101:
         window.view = window.view.scale((1/Game.zoom, 1/Game.zoom, Game.zoom))
-        Game.totalzoom = Game.totalzoom / Game.zoom
-        zoom()
+        Game.totalzoom /= Game.zoom
+        zoom(True)
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
@@ -126,6 +134,7 @@ tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 player = Player('assets/sprites/player/', Game.SIZE)
 player.give(item.MUG, 1)
 player.set_held_item(0)
+player.set_screen_size(1)
 
 cow = Cow(3.0, 3.0, 10, 10, Game.SIZE)
 
