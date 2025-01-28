@@ -45,6 +45,9 @@ def on_draw():
 
     if hud.inventory_open:
         hud.inventory_batch.draw()
+    
+    if hud.popup is not None:
+        hud.popup.draw()
 
     for child in child_flock:
           child.update(child_flock, player.get_pos())
@@ -78,7 +81,7 @@ def on_key_press(symbol, modifiers) -> None:
         pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
     elif symbol == pyglet.window.key.D:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
-    elif (symbol == pyglet.window.key.PLUS or (symbol == pyglet.window.key.EQUAL and modifiers and pyglet.window.key.MOD_SHIFT)) and Game.zoom < 3.0:
+    elif (symbol == pyglet.window.key.PLUS or (symbol == pyglet.window.key.EQUAL and modifiers and pyglet.window.key.MOD_SHIFT)) and Game.zoom < 3.0:#
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         Game.totalzoom *= Game.zoom
         zoom()
@@ -105,16 +108,15 @@ def on_key_press(symbol, modifiers) -> None:
         playerpos = player.get_pos()
         cowpos = cow.get_pos()
 
-        if playerpos[0] < cowpos[0]+2 or playerpos[0] < cowpos[0]-2 or playerpos[1] < cowpos[1]+2 or playerpos[1] < cowpos[1]-2:
-            print("no cow")
+        if playerpos[0] > cowpos[0]+2 or playerpos[0] < cowpos[0]-2 or playerpos[1] > cowpos[1]+2 or playerpos[1] < cowpos[1]-2:
+            log("no cow")
             return
         
         if Game.milk:
-            Game.milk=False
-            print("closing milking")
+            hud.close_popup()
         else:
-            print("milking possible")
-            Game.milk=True
+            hud.create_popup(0, 64, 128, 256, 128)
+        Game.milk = not Game.milk
 
 @window.event
 def on_key_release(symbol, _) -> None:
