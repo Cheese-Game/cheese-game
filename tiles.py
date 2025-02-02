@@ -3,6 +3,8 @@ from xml.etree.ElementTree import parse
 from numpy import zeros
 from math import floor, ceil
 
+from logger import log
+
 
 class Tileset:
     def __init__(self, filename) -> None:
@@ -126,14 +128,37 @@ class Tilemap:
     
     def test_collisions(self, player_pos: list, direction: int) -> bool:
         match direction:
-            case 0:
-                tile = round(player_pos[0]), floor(player_pos[1] + 1)
+            # moving up
+            case 0: 
+                tiles = [(round(player_pos[0]), floor(player_pos[1] + 1))]
+
+                if player_pos[0] - floor(player_pos[0]) <= 0.25:
+                    tiles.append((round(player_pos[0]) - 1, floor(player_pos[1] + 1)))
+                elif player_pos[0] - floor(player_pos[0]) >= 0.75:
+                    tiles.append((round(player_pos[0]) + 1, floor(player_pos[1] + 1)))
+            # moving down
             case 1:
-                tile = round(player_pos[0]), ceil(player_pos[1] - 1)
+                tiles = [(round(player_pos[0]), ceil(player_pos[1] - 1))]
+                
+                if player_pos[0] - floor(player_pos[0]) <= 0.25:
+                    tiles.append((round(player_pos[0]) - 1, floor(player_pos[1] - 1)))
+                elif player_pos[0] - floor(player_pos[0]) >= 0.75:
+                    tiles.append((round(player_pos[0]) + 1, floor(player_pos[1] - 1)))
+            # moving left
             case 2:
-                tile = floor(player_pos[0] + 1), round(player_pos[1])
+                tiles = [(ceil(player_pos[0] - 1), round(player_pos[1]))]
+
+                if player_pos[1] - floor(player_pos[1]) <= 0.25:
+                    tiles.append((floor(player_pos[0] - 1), round(player_pos[1]) + 1))
+            # moving right
             case 3:
-                tile = ceil(player_pos[0] - 1), round(player_pos[1])
-        
-        return self.get_tile(tile, 1) != 0
+                tiles = [(floor(player_pos[0] + 1), round(player_pos[1]))]
+
+                if player_pos[1] - floor(player_pos[1]) <= 0.25:
+                    tiles.append((floor(player_pos[0] + 1), round(player_pos[1]) + 1))
+
+        for tile in tiles:
+            if self.get_tile(tile, 1) != 0:
+                return True
+        return False
 
