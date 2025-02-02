@@ -1,5 +1,7 @@
 from pyglet import resource, sprite, graphics
 from xml.etree.ElementTree import parse
+from numpy import zeros
+from math import floor, ceil
 
 
 class Tileset:
@@ -23,7 +25,7 @@ class Tileset:
             while path_to_tsx[-1] != '/':
                 path_to_tsx = path_to_tsx[:-1]
 
-            path = path_to_tsx + tile[1].attrib['source']
+            path = path_to_tsx + tile[0].attrib['source']
 
             image = resource.image(path)
 
@@ -40,7 +42,6 @@ class Tilemap:
 
         self.tileset = None
         self.map = None
-        self.position = [self.screen_width // 2, self.screen_height // 2]
 
         self.batch = graphics.Batch()
         self.tilemap_size = [0, 0]
@@ -65,10 +66,11 @@ class Tilemap:
         ]
 
         self.tileset = Tileset(root[0].attrib['source'].replace('..', 'assets'))
-
         self.tileset.parse_tileset()
 
         tile_list = self.tileset.get_tiles()
+
+        self.tilemap = []
 
         for layer in root:
             if layer.tag == 'tileset':
@@ -77,6 +79,8 @@ class Tilemap:
             data = layer[0].text
 
             offset = 0
+
+            layer_map = zeros((self.tilemap_size[0], self.tilemap_size[1]), dtype=object)
 
             for y, row in enumerate(data.split('\n')[1:-1]):
                 tiles = row.split(',')[:-1]
@@ -92,22 +96,44 @@ class Tilemap:
                         try:
                             tile_sprite = sprite.Sprite(
                                 tile_list[tile_id],
-                                x * 16 + self.position[0], 
-                                y * 16 + self.position[1],
+                                x * 16 + self.screen_width // 2 - x * 16, 
+                                y * 16 + self.screen_height // 2 - y * 16,
                                 batch=self.batch)
-                            self.sprite_list.append(tile_sprite)
+                            layer_map[x, self.tilemap_size[1] - y - 1] = tile_sprite
                             condition = False
                         except KeyError:
                             offset += 1
 
+            self.tilemap.append(layer_map)
+
     def adjust_position(self, player_pos) -> None:
         x, y = player_pos
-        self.position = [
-            self.screen_width // 2 - x * 16,
-            self.screen_height // 2 - y * 16
-        ]
 
-        for i, tile in enumerate(self.sprite_list):
-            tile.x = i % self.tilemap_size[0] * 16 + self.position[0]
-            tile.y = (self.tilemap_size[1] - i // self.tilemap_size[0] - 1) * 16 + self.position[1]
+        for layer in self.tilemap:
+            for i, row in enumerate(layer):
+                for j, tile in enumerate(row):
+                    if tile == 0:
+                        continue
+
+                    tile.x = i * 16 + self.screen_width // 2 - x * 16
+                    tile.y = j * 16 + self.screen_height // 2 - y * 16
+    
+    def get_tile(self, position: tuple, layer: int) -> sprite.Sprite | int:
+        try:
+            return self.tilemap[layer][position]
+        except IndexError:
+            return 0
+    
+    def test_collisions(self, player_pos: list, direction: int) -> bool:
+        match direction:
+            case 0:
+                tile = round(player_pos[0]), floor(player_pos[1] + 1)
+            case 1:
+                tile = round(player_pos[0]), ceil(player_pos[1] - 1)
+            case 2:
+                tile = floor(player_pos[0] + 1), round(player_pos[1])
+            case 3:
+                tile = ceil(player_pos[0] - 1), round(player_pos[1])
+        
+        return self.get_tile(tile, 1) != 0
 

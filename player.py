@@ -5,13 +5,15 @@ from pyglet import sprite
 class Player:
     SPEED = 16.0
 
-    def __init__(self, sprite_path, screen_size) -> None:
+    def __init__(self, sprite_path, screen_size, tilemap) -> None:
         self.screen_width, self.screen_height = screen_size
+        self.tilemap = tilemap
         self.position = [0.0, 0.0]
         self.sprites = PlayerSprites(sprite_path, screen_size)
         self.sprite = self.sprites.sprite_front_default
         self.inventory = []
         self.current_item = None
+        self.can_move = True
 
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
@@ -29,20 +31,28 @@ class Player:
         self.position = [0.0, 0.0]
 
     def move_up(self, dt) -> None:
-        self.position[1] += int(Player.SPEED * dt * 4) / 4
-        self.sprite = self.sprites.sprite_back_default
+        if self.can_move:
+            if not self.tilemap.test_collisions(self.position, 0):
+                self.position[1] += int(Player.SPEED * dt * 4) / 4
+                self.sprite = self.sprites.sprite_back_default
         
     def move_down(self, dt) -> None:
-        self.position[1] -= int(Player.SPEED * dt * 4) / 4
-        self.sprite = self.sprites.sprite_front_default
+        if self.can_move:
+            if not self.tilemap.test_collisions(self.position, 1):
+                self.position[1] -= int(Player.SPEED * dt * 4) / 4
+                self.sprite = self.sprites.sprite_front_default
 
     def move_left(self, dt) -> None:
-        self.position[0] -= int(Player.SPEED * dt * 4) / 4
-        self.sprite = self.sprites.sprite_left_default
+        if self.can_move:
+            if not self.tilemap.test_collisions(self.position, 2):
+                self.position[0] -= int(Player.SPEED * dt * 4) / 4
+                self.sprite = self.sprites.sprite_left_default
 
     def move_right(self, dt) -> None:
-        self.position[0] += int(Player.SPEED * dt * 4) / 4
-        self.sprite = self.sprites.sprite_right_default
+        if self.can_move:
+            if not self.tilemap.test_collisions(self.position, 3):
+                self.position[0] += int(Player.SPEED * dt * 4) / 4
+                self.sprite = self.sprites.sprite_right_default
 
     def draw(self) -> None:
         self.sprite.draw()
@@ -79,17 +89,17 @@ class PlayerSprites:
         img_left_default = image(path_left_default)
         img_right_default = image(path_right_default)
 
-        self.sprite_front_default = sprite.Sprite(img_front_default, x=self.screen_width // 2, y=self.screen_height // 2)
-        self.sprite_back_default = sprite.Sprite(img_back_default, x=self.screen_width // 2, y=self.screen_height // 2)
-        self.sprite_left_default = sprite.Sprite(img_left_default, x=self.screen_width // 2, y=self.screen_height // 2)
-        self.sprite_right_default = sprite.Sprite(img_right_default, x=self.screen_width // 2, y=self.screen_height // 2)
+        self.sprite_front_default = sprite.Sprite(img_front_default, x=self.screen_width // 2 - img_front_default.width // 2, y=self.screen_height // 2)
+        self.sprite_back_default = sprite.Sprite(img_back_default, x=self.screen_width // 2 - img_back_default.width // 2, y=self.screen_height // 2)
+        self.sprite_left_default = sprite.Sprite(img_left_default, x=self.screen_width // 2 - img_left_default.width // 2, y=self.screen_height // 2)
+        self.sprite_right_default = sprite.Sprite(img_right_default, x=self.screen_width // 2 - img_right_default.width // 2, y=self.screen_height // 2)
     
     def adjust_sprite_positions(self, screen_width, screen_height) -> None:
         self.sprite_front_default.x = screen_width // 2 - self.sprite_front_default.width // 2
-        self.sprite_front_default.y = screen_height // 2 - self.sprite_front_default.height // 2
+        self.sprite_front_default.y = screen_height // 2
         self.sprite_back_default.x = screen_width // 2 - self.sprite_back_default.width // 2
-        self.sprite_back_default.y = screen_height // 2 - self.sprite_back_default.height // 2
+        self.sprite_back_default.y = screen_height // 2
         self.sprite_left_default.x = screen_width // 2 - self.sprite_left_default.width // 2
-        self.sprite_left_default.y = screen_height // 2 - self.sprite_left_default.height // 2
+        self.sprite_left_default.y = screen_height // 2
         self.sprite_right_default.x = screen_width // 2 - self.sprite_right_default.width // 2
-        self.sprite_right_default.y = screen_height // 2 - self.sprite_right_default.height // 2
+        self.sprite_right_default.y = screen_height // 2 

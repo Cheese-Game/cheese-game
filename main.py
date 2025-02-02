@@ -133,7 +133,7 @@ fps_display = pyglet.window.FPSDisplay(window=window)
 
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
 
-player = Player('assets/sprites/player/', Game.SIZE)
+player = Player('assets/sprites/player/', Game.SIZE, tilemap)
 player.give(item.MUG, 1)
 player.set_held_item(0)
 player.set_screen_size(1)
