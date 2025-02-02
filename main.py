@@ -28,6 +28,7 @@ window.set_caption("Cheese Game")
 window.set_icon(pyglet.resource.image("assets/sprites/player/front-default.png"))
 Game.zoom = 2.0
 window.set_mouse_cursor(window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR))
+#set_handle()
 
 
 @window.event
@@ -52,8 +53,9 @@ def on_draw():
     for child in child_flock:
           child.update(child_flock, player.get_pos())
     child_batch.draw()
-
-
+def getclosebtn(closebtn):
+    window.push_handlers(closebtn)
+    return closebtn
 def zoom(recip=False) -> None:
     log("zoom")
     if recip:
@@ -81,7 +83,7 @@ def on_key_press(symbol, modifiers) -> None:
         pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
     elif symbol == pyglet.window.key.D:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
-    elif (symbol == pyglet.window.key.PLUS or (symbol == pyglet.window.key.EQUAL and modifiers and pyglet.window.key.MOD_SHIFT)) and Game.zoom < 3.0:#
+    elif (symbol == pyglet.window.key.PLUS or (symbol == pyglet.window.key.EQUAL and modifiers and pyglet.window.key.MOD_SHIFT)) and Game.zoom < 3.0:
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         Game.totalzoom *= Game.zoom
         zoom()
@@ -109,14 +111,17 @@ def on_key_press(symbol, modifiers) -> None:
         cowpos = cow.get_pos()
 
         if playerpos[0] > cowpos[0]+2 or playerpos[0] < cowpos[0]-2 or playerpos[1] > cowpos[1]+2 or playerpos[1] < cowpos[1]-2:
-            log("no cow")
+            hud.close_popup()
             return
         
         if Game.milk:
             hud.close_popup()
         else:
-            hud.create_popup(0, 64, 128, 256, 128)
+            hud.create_popup(0, (Game.SIZE[0]/2-128), (Game.SIZE[1]/2-64), 256, 128)
+            hud.milkingmini()
+            window.set_mouse_cursor(window.get_system_mouse_cursor(window.CURSOR_HAND))
         Game.milk = not Game.milk
+        
 
 @window.event
 def on_key_release(symbol, _) -> None:
@@ -128,7 +133,7 @@ def on_key_release(symbol, _) -> None:
         pyglet.clock.unschedule(player.move_down)
     elif symbol == pyglet.window.key.D:
         pyglet.clock.unschedule(player.move_right)
-    
+
 fps_display = pyglet.window.FPSDisplay(window=window)
 
 tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
@@ -140,7 +145,7 @@ player.set_screen_size(1)
 
 cow = Cow(3.0, 3.0, 10, 10, Game.SIZE)
 
-hud = Hud(Game.SIZE, player)
+hud = Hud(Game.SIZE, player,window)
 
 child_flock = []
 

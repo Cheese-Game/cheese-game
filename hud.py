@@ -4,10 +4,10 @@ from logger import log
 
 
 class Hud:
-    def __init__(self, screen_size, player) -> None:
+    def __init__(self, screen_size, player,window) -> None:
         self.screen_width, self.screen_height = screen_size
         self.player = player
-
+        self.window = window
         self.inventory_open = False
         self.inventory_components = []
         self.inventory_batch = graphics.Batch()
@@ -21,12 +21,12 @@ class Hud:
 
         self.popup_components = []
         self.popup: graphics.Batch = None
-
+    
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
         log(self.screen_height)
-
+    
     def create_hud(self) -> None:
         bg = shapes.Rectangle(x=self.screen_height/32, y=self.screen_height/32, width=32, height=32, color=(0, 0, 0, 128), batch=self.hud_batch)
         self.hud_components.append(bg)
@@ -68,7 +68,7 @@ class Hud:
         self.close_popup()
 
         batch = graphics.Batch()
-
+        
         widnow = shapes.RoundedRectangle(x=x, y=y, width=w, height=h, radius=9, color=(122, 118, 156, 176), batch=batch)
 
         border0 = shapes.Line(x=(x+16), y=(y+h-1), x2=(x+w-16), y2=(y+h-1), color=(34, 32, 52), batch=batch)
@@ -82,22 +82,32 @@ class Hud:
         corner1 = sprite.Sprite(corners.get_region(16, 0, 16, 16), x=x+w-16, y=y, batch=batch)
         corner2 = sprite.Sprite(corners.get_region(0, 16, 16, 16), x=x, y=y+h-16, batch=batch)
         corner3 = sprite.Sprite(corners.get_region(16, 16, 16, 16), x=x+w-16, y=y+h-16, batch=batch)
-
-        pressed = resource.image("assets/sprites/hud/close.bmp")
+        udderimg=resource.image("assets/sprites/creature/cow1.png",atlas=True)
+        udder=sprite.Sprite(udderimg,x=241,y=113,batch=self.popup)
+        
+        pressed = resource.image("assets/sprites/item/1.png")
         unpressed = resource.image("assets/sprites/hud/close.bmp")
-        close_btn = gui.PushButton(x=x+w-16, y=y+h-16, pressed=pressed, unpressed=unpressed, batch=batch)
-
-        @close_btn.event
-        def on_press(_) -> None:
+        close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, depressed=unpressed, batch=batch)
+        self.window.push_handlers(close_btn)
+        
+        def on_press() -> None:
             self.close_popup()
-
-        self.popup_components.extend([border0, border1, border2, border3, corner0, corner1, corner2, corner3, widnow, close_btn])
+        close_btn.set_handler('on_press', on_press)
+        self.popup_components.extend([border0, border1, border2, border3, corner0, corner1, corner2, corner3, widnow, close_btn,udder])
 
         self.popup = batch
-    
+        
+
     def close_popup(self) -> None:
         self.popup = None
-
+        self.window.set_mouse_cursor (self.window.get_system_mouse_cursor(self.window.CURSOR_CROSSHAIR))
+    def relxy(self,x,y):
+        x=x+240
+        y=y+112
+        return x,y
+    def milkingmini(self):
+        udderimg=resource.image("assets/sprites/creature/cow1.png",atlas=True)
+        udder=sprite.Sprite(udderimg,x=241,y=113,batch=self.popup)
 
 
         
