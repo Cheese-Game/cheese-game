@@ -67,27 +67,27 @@ class Hud:
     def create_popup(self, gid, x, y, w, h) -> None:
         self.close_popup()
 
-        batch = graphics.Batch()
+        self.popupbatch = graphics.Batch()
         
-        widnow = shapes.RoundedRectangle(x=x, y=y, width=w, height=h, radius=9, color=(122, 118, 156, 176), batch=batch)
+        widnow = shapes.RoundedRectangle(x=x, y=y, width=w, height=h, radius=9, color=(122, 118, 156, 176), batch=self.popupbatch)
 
-        border0 = shapes.Line(x=(x+16), y=(y+h-1), x2=(x+w-16), y2=(y+h-1), color=(34, 32, 52), batch=batch)
-        border1 = shapes.Line(x=(x+w), y=(y+h-16), x2=(x+w), y2=(y+16), color=(34, 32, 52), batch=batch)
-        border2 = shapes.Line(x=(x+16), y=(y), x2=(x+w-16), y2=(y), color=(34, 32, 52), batch=batch)
-        border3 = shapes.Line(x=(x+1), y=(y+16), x2=(x+1), y2=(y+h-16), color=(34, 32, 52), batch=batch)
+        border0 = shapes.Line(x=(x+16), y=(y+h-1), x2=(x+w-16), y2=(y+h-1), color=(34, 32, 52), batch=self.popupbatch)
+        border1 = shapes.Line(x=(x+w), y=(y+h-16), x2=(x+w), y2=(y+16), color=(34, 32, 52), batch=self.popupbatch)
+        border2 = shapes.Line(x=(x+16), y=(y), x2=(x+w-16), y2=(y), color=(34, 32, 52), batch=self.popupbatch)
+        border3 = shapes.Line(x=(x+1), y=(y+16), x2=(x+1), y2=(y+h-16), color=(34, 32, 52), batch=self.popupbatch)
 
         corners = resource.image("assets/sprites/hud/popup_corners.png")
 
-        corner0 = sprite.Sprite(corners.get_region(0, 0, 16, 16), x=x, y=y, batch=batch)
-        corner1 = sprite.Sprite(corners.get_region(16, 0, 16, 16), x=x+w-16, y=y, batch=batch)
-        corner2 = sprite.Sprite(corners.get_region(0, 16, 16, 16), x=x, y=y+h-16, batch=batch)
+        corner0 = sprite.Sprite(corners.get_region(0, 0, 16, 16), x=x, y=y, batch=self.popupbatch)
+        corner1 = sprite.Sprite(corners.get_region(16, 0, 16, 16), x=x+w-16, y=y, batch=self.popupbatch)
+        corner2 = sprite.Sprite(corners.get_region(0, 16, 16, 16), x=x, y=y+h-16, batch=self.popupbatch)
         corner3 = sprite.Sprite(corners.get_region(16, 16, 16, 16), x=x+w-16, y=y+h-16, batch=batch)
         udderimg=resource.image("assets/sprites/creature/cow1.png",atlas=True)
-        udder=sprite.Sprite(udderimg,x=241,y=113,batch=self.popup)
+        udder=sprite.Sprite(udderimg,x=w,y=h,batch=batch)
         
         pressed = resource.image("assets/sprites/item/1.png")
         unpressed = resource.image("assets/sprites/hud/close.bmp")
-        close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, depressed=unpressed, batch=batch)
+        close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, depressed=unpressed, batch=self.popupbatch)
         self.window.push_handlers(close_btn)
         
         def on_press() -> None:
