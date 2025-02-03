@@ -87,11 +87,12 @@ class Hud:
         
         pressed = resource.image("assets/sprites/item/1.png")
         unpressed = resource.image("assets/sprites/hud/close.bmp")
-        close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, depressed=unpressed, batch=batch)
+        close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, unpressed=unpressed, batch=batch)
         self.window.push_handlers(close_btn)
         
         def on_press() -> None:
             self.close_popup()
+        
         close_btn.set_handler('on_press', on_press)
         self.popup_components.extend([border0, border1, border2, border3, corner0, corner1, corner2, corner3, widnow, close_btn,udder])
 
@@ -100,14 +101,16 @@ class Hud:
 
     def close_popup(self) -> None:
         self.popup = None
-        self.window.set_mouse_cursor (self.window.get_system_mouse_cursor(self.window.CURSOR_CROSSHAIR))
-    def relxy(self,x,y):
-        x=x+240
-        y=y+112
-        return x,y
+        self.window.set_mouse_cursor(self.window.get_system_mouse_cursor(self.window.CURSOR_CROSSHAIR))
+
+    def relxy(self,x, y):
+        x += 240
+        y += 112
+        return x, y
+    
     def milkingmini(self):
         udderimg=resource.image("assets/sprites/creature/cow1.png",atlas=True)
-        udder=sprite.Sprite(udderimg,x=241,y=113,batch=self.popup)
+        udder=sprite.Sprite(udderimg, x=241, y=113, batch=self.popup)
 
 
         

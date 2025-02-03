@@ -126,36 +126,36 @@ class Tilemap:
         except IndexError:
             return 0
     
-    def test_collisions(self, player_pos: list, direction: int) -> bool:
+    def test_collisions(self, pos: list, direction: int) -> bool:
         match direction:
             # moving up
             case 0: 
-                tiles = [(round(player_pos[0]), floor(player_pos[1] + 1))]
+                tiles = [(round(pos[0]), floor(pos[1] + 1))]
 
-                if player_pos[0] - floor(player_pos[0]) <= 0.25:
-                    tiles.append((round(player_pos[0]) - 1, floor(player_pos[1] + 1)))
-                elif player_pos[0] - floor(player_pos[0]) >= 0.75:
-                    tiles.append((round(player_pos[0]) + 1, floor(player_pos[1] + 1)))
+                if pos[0] - floor(pos[0]) <= 0.25:
+                    tiles.append((round(pos[0]) - 1, floor(pos[1] + 1)))
+                elif pos[0] - floor(pos[0]) >= 0.75:
+                    tiles.append((round(pos[0]) + 1, floor(pos[1] + 1)))
             # moving down
             case 1:
-                tiles = [(round(player_pos[0]), ceil(player_pos[1] - 1))]
+                tiles = [(round(pos[0]), ceil(pos[1] - 1))]
                 
-                if player_pos[0] - floor(player_pos[0]) <= 0.25:
-                    tiles.append((round(player_pos[0]) - 1, floor(player_pos[1] - 1)))
-                elif player_pos[0] - floor(player_pos[0]) >= 0.75:
-                    tiles.append((round(player_pos[0]) + 1, floor(player_pos[1] - 1)))
+                if pos[0] - floor(pos[0]) <= 0.25:
+                    tiles.append((round(pos[0]) - 1, floor(pos[1] - 1)))
+                elif pos[0] - floor(pos[0]) >= 0.75:
+                    tiles.append((round(pos[0]) + 1, floor(pos[1] - 1)))
             # moving left
             case 2:
-                tiles = [(ceil(player_pos[0] - 1), round(player_pos[1]))]
+                tiles = [(ceil(pos[0] - 1), round(pos[1]))]
 
-                if player_pos[1] - floor(player_pos[1]) <= 0.25:
-                    tiles.append((floor(player_pos[0] - 1), round(player_pos[1]) + 1))
+                if pos[1] - floor(pos[1]) <= 0.25:
+                    tiles.append((floor(pos[0] - 1), round(pos[1]) + 1))
             # moving right
             case 3:
-                tiles = [(floor(player_pos[0] + 1), round(player_pos[1]))]
+                tiles = [(floor(pos[0] + 1), round(pos[1]))]
 
-                if player_pos[1] - floor(player_pos[1]) <= 0.25:
-                    tiles.append((floor(player_pos[0] + 1), round(player_pos[1]) + 1))
+                if pos[1] - floor(pos[1]) <= 0.25:
+                    tiles.append((floor(pos[0] + 1), round(pos[1]) + 1))
 
         for tile in tiles:
             if self.get_tile(tile, 1) != 0:
