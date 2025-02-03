@@ -21,9 +21,9 @@ class Cow:
     def random_movement(self, _) -> None:
         self.set_direction(random() * 2 * pi)
 
-        clock.schedule_interval_for_duration(self.move, 1/30, 2)
+        clock.schedule_interval_for_duration(self.move, 1/60, 4)
 
-        clock.schedule_once(self.random_movement, randint(10, 15))
+        clock.schedule_once(self.random_movement, randint(5, 10))
 
     def set_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width / zoom
@@ -44,11 +44,8 @@ class Cow:
         self.velocity = [cos(direction), sin(direction)]
 
     def move(self, dt) -> None:
-        self.velocity[0] *= dt * 8
-        self.velocity[1] *= dt * 8
-
-        self.position[0] += self.velocity[0]
-        self.position[1] += self.velocity[1]
+        self.position[0] += self.velocity[0] * dt * 2
+        self.position[1] += self.velocity[1] * dt * 2
 
 
 class Child:
