@@ -1,6 +1,6 @@
-from math import sqrt, acos
-from pyglet import resource, sprite
-from random import randint
+from math import sqrt, cos, sin, pi
+from pyglet import resource, sprite, clock
+from random import randint, random
 
 
 class Cow:
@@ -16,12 +16,21 @@ class Cow:
 
         self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1])
 
-    def set_screen_size(self, zoom, player_pos) -> None:
+        clock.schedule_once(self.random_movement, randint(1, 5))
+    
+    def random_movement(self, _) -> None:
+        self.set_direction(random() * 2 * pi)
+
+        clock.schedule_interval_for_duration(self.move, 1/30, 2)
+
+        clock.schedule_once(self.random_movement, randint(10, 15))
+
+    def set_screen_size(self, zoom) -> None:
         self.screen_width = self.screen_width / zoom
         self.screen_height = self.screen_height / zoom
 
     def get_pos(self) -> list:
-        return self.position
+        return self.position    
 
     def draw(self, player_pos) -> None:
         x, y = player_pos
@@ -32,9 +41,12 @@ class Cow:
         self.sprite.draw()
 
     def set_direction(self, direction) -> None:
-        self.velocity = [acos(direction), acos(direction)]
+        self.velocity = [cos(direction), sin(direction)]
 
     def move(self, dt) -> None:
+        self.velocity[0] *= dt * 8
+        self.velocity[1] *= dt * 8
+
         self.position[0] += self.velocity[0]
         self.position[1] += self.velocity[1]
 

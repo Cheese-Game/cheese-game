@@ -53,21 +53,19 @@ def on_draw():
     for child in child_flock:
           child.update(child_flock, player.get_pos())
     child_batch.draw()
-def getclosebtn(closebtn):
-    window.push_handlers(closebtn)
-    return closebtn
+
 def zoom(recip=False) -> None:
     log("zoom")
     if recip:
         player.set_screen_size(1/Game.zoom)
         tilemap.set_screen_size(1/Game.zoom)
         hud.set_screen_size(1/Game.zoom)
-        cow.set_screen_size(1/Game.zoom, player.get_pos())
+        cow.set_screen_size(1/Game.zoom)
     else:
         player.set_screen_size(Game.zoom)
         tilemap.set_screen_size(Game.zoom)
         hud.set_screen_size(Game.zoom)
-        cow.set_screen_size(Game.zoom, player.get_pos())
+        cow.set_screen_size(Game.zoom)
 
     if hud.inventory_open:
         hud.close_inventory()
