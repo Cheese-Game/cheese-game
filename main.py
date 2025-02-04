@@ -8,6 +8,7 @@ from tiles import Tilemap, id_to_file
 from logger import log
 from npc import NPC_Manager
 from hud import Hud
+from minigame import Minigame
 
 
 class Game:
@@ -107,8 +108,10 @@ def on_key_press(symbol, modifiers) -> None:
         if Game.milk:
             hud.close_popup()
         else:
-            hud.create_popup(0, (Game.SIZE[0]/2-128), (Game.SIZE[1]/2-64), 256, 128)
-            hud.milkingmini()
+            hud.create_popup(0, (Game.SIZE[0]/2-128)*Game.totalzoom, (Game.SIZE[1]/2-64)*Game.totalzoom, 256, 128)
+            minigame = Minigame(hud)
+            minigame.milkingmini()
+            
             cursor.set_cursor(window, cursor.HAND)
         Game.milk = not Game.milk
         
