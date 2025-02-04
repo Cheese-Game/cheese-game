@@ -25,7 +25,7 @@ class Hud:
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
-        log(self.screen_height)
+        log("zoom reset")
     
     def create_hud(self) -> None:
         bg = shapes.Rectangle(x=self.screen_height/32, y=self.screen_height/32, width=32, height=32, color=(0, 0, 0, 128), batch=self.hud_batch)
@@ -81,9 +81,7 @@ class Hud:
         corner0 = sprite.Sprite(corners.get_region(0, 0, 16, 16), x=x, y=y, batch=self.popupbatch)
         corner1 = sprite.Sprite(corners.get_region(16, 0, 16, 16), x=x+w-16, y=y, batch=self.popupbatch)
         corner2 = sprite.Sprite(corners.get_region(0, 16, 16, 16), x=x, y=y+h-16, batch=self.popupbatch)
-        corner3 = sprite.Sprite(corners.get_region(16, 16, 16, 16), x=x+w-16, y=y+h-16, batch=batch)
-        udderimg=resource.image("assets/sprites/creature/cow1.png",atlas=True)
-        udder=sprite.Sprite(udderimg,x=w,y=h,batch=batch)
+        corner3 = sprite.Sprite(corners.get_region(16, 16, 16, 16), x=x+w-16, y=y+h-16, batch=self.popupbatch)
         
         pressed = resource.image("assets/sprites/item/1.png")
         unpressed = resource.image("assets/sprites/hud/close.bmp")
@@ -93,9 +91,9 @@ class Hud:
         def on_press() -> None:
             self.close_popup()
         close_btn.set_handler('on_press', on_press)
-        self.popup_components.extend([border0, border1, border2, border3, corner0, corner1, corner2, corner3, widnow, close_btn,udder])
+        self.popup_components.extend([border0, border1, border2, border3, corner0, corner1, corner2, corner3, widnow, close_btn])
 
-        self.popup = batch
+        self.popup = self.popupbatch
         
 
     def close_popup(self) -> None:
@@ -106,8 +104,9 @@ class Hud:
         y=y+112
         return x,y
     def milkingmini(self):
-        udderimg=resource.image("assets/sprites/creature/cow1.png",atlas=True)
-        udder=sprite.Sprite(udderimg,x=241,y=113,batch=self.popup)
+        udderimg=resource.image("assets/sprites/hud/minigame/udder.png",atlas=True)
+        udder=sprite.Sprite(udderimg,x=self.screen_width/2-128,y=self.screen_height/2-64,batch=self.popupbatch)
+        self.popup_components.append(udder)
 
 
         
