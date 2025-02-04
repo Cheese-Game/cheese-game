@@ -1,6 +1,7 @@
 import pyglet
 
 import item
+import cursor
 
 from player import Player
 from tiles import Tilemap, id_to_file
@@ -20,14 +21,12 @@ class Game:
 
         log("Game running")
 
-window = pyglet.window.Window(*Game.SIZE, vsync=False)
+window = pyglet.window.Window(*Game.SIZE, vsync=False, caption="Cheese Game")
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
-window.set_caption("Cheese Game")
 window.set_icon(pyglet.resource.image("assets/sprites/player/front-default.png"))
 Game.zoom = 2.0
-window.set_mouse_cursor(window.get_system_mouse_cursor(window.CURSOR_CROSSHAIR))
-#set_handle()
 
+cursor.set_cursor(window, cursor.CROSSHAIR)
 
 @window.event
 def on_draw():
@@ -37,6 +36,7 @@ def on_draw():
 
     tilemap.batch.draw()
     player.draw()
+    tilemap.above_batch.draw()
     hud.hud_batch.draw()
     fps_display.draw()
 
@@ -50,17 +50,11 @@ def on_draw():
 
 
 def zoom(recip=False) -> None:
-    log("zoom")
-    if recip:
-        player.set_screen_size(1/Game.zoom)
-        tilemap.set_screen_size(1/Game.zoom)
-        hud.set_screen_size(1/Game.zoom)
-        npcs.set_screen_size(1/Game.zoom)
-    else:
-        player.set_screen_size(Game.zoom)
-        tilemap.set_screen_size(Game.zoom)
-        hud.set_screen_size(Game.zoom)
-        npcs.set_screen_size(Game.zoom)
+    z = 1/Game.zoom if recip else Game.zoom
+    player.set_screen_size(z)
+    tilemap.set_screen_size(z)
+    hud.set_screen_size(z)
+    npcs.set_screen_size(z)
 
     if hud.inventory_open:
         hud.close_inventory()
@@ -115,7 +109,7 @@ def on_key_press(symbol, modifiers) -> None:
         else:
             hud.create_popup(0, (Game.SIZE[0]/2-128), (Game.SIZE[1]/2-64), 256, 128)
             hud.milkingmini()
-            window.set_mouse_cursor(window.get_system_mouse_cursor(window.CURSOR_HAND))
+            cursor.set_cursor(window, cursor.HAND)
         Game.milk = not Game.milk
         
 
@@ -141,7 +135,7 @@ player.set_screen_size(1)
 
 hud = Hud(Game.SIZE, player,window)
 
-npcs = NPC_Manager(Game.SIZE)
+npcs = NPC_Manager(Game.SIZE, player)
 
 held_movement_keys = []
 

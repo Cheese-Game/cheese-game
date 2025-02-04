@@ -24,8 +24,8 @@
             "scale": 1.5,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 304.33333333333337,
-                "y": 118.99999999999997
+                "x": 226.99999999999997,
+                "y": 158.99999999999997
             }
         },
         "tileset/area1.tsx": {
@@ -44,7 +44,7 @@
             "scaleInEditor": 16
         }
     },
-    "last.imagePath": "C:/Users/rafia/Documents/Programming/cheese-game/assets/tileset/cheese_room",
+    "last.imagePath": "C:/Users/rafia/Documents/Programming/cheese-game/assets/tileset/cheese_room/tiles",
     "map.fixedSize": true,
     "map.lastUsedFormat": "tmx",
     "map.renderOrder": null,

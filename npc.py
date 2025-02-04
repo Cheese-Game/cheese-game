@@ -4,9 +4,16 @@ from random import randint, random, shuffle
 
 
 class NPC_Manager:
-    def __init__(self, screen_size):
+    def __init__(self, screen_size, player):
         self.screen_height, self.screen_width = screen_size
-        
+        self.player = player
+
+        self.npc_list = []
+
+        self.initialise_children()
+        self.initialise_cows()
+    
+    def initialise_children(self) -> None:
         x_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
         y_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
         x_velocities = [-20, -5, -15, -10, -5, 5, 10, 15, 20, 5]
@@ -23,18 +30,28 @@ class NPC_Manager:
         for i in range(10):
             self.child_flock.append(Child(x_positions[i], y_positions[i], 
                                     x_velocities[i], y_velocities[i],
-                                    self.child_batch, screen_size))
-            
-        self.cow = Cow(3.0, 3.0, 10, 10, screen_size)
+                                    self.child_batch, (self.screen_width, self.screen_height)))
+        
+        for child in self.child_flock:
+            self.npc_list.append({
+                "npc": child, 
+                "area": self.player.current_area
+            })
+    
+    def initialise_cows(self) -> None:
+        self.cow = Cow(3.0, 3.0, 10, 10, (self.screen_width, self.screen_height))
+
+        self.npc_list.append({
+            "npc": self.cow,
+            "area": self.player.current_area
+        })
     
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
 
-        self.cow.set_screen_size(zoom)
-
-        for child in self.child_flock:
-            child.set_screen_size(zoom)
+        for npc in self.npc_list:
+            npc['npc'].set_screen_size(zoom)
     
     def draw(self, player_pos):
         self.cow.draw(player_pos)
@@ -72,7 +89,7 @@ class Cow:
         self.screen_height = self.screen_height / zoom
 
     def get_pos(self) -> list:
-        return self.position    
+        return self.position
 
     def draw(self, player_pos) -> None:
         x, y = player_pos

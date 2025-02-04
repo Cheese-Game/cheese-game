@@ -46,6 +46,7 @@ class Tilemap:
         self.map = None
 
         self.batch = graphics.Batch()
+        self.above_batch = graphics.Batch()
         self.tilemap_size = [0, 0]
 
         self.sprite_list = []
@@ -74,7 +75,7 @@ class Tilemap:
 
         self.tilemap = []
 
-        for layer in root:
+        for i, layer in enumerate(root):
             if layer.tag == 'tileset':
                 continue
 
@@ -99,8 +100,11 @@ class Tilemap:
                             tile_sprite = sprite.Sprite(
                                 tile_list[tile_id],
                                 x * 16 + self.screen_width // 2 - x * 16, 
-                                y * 16 + self.screen_height // 2 - y * 16,
-                                batch=self.batch)
+                                y * 16 + self.screen_height // 2 - y * 16)
+                            if i < 3:
+                                tile_sprite.batch = self.batch
+                            else:
+                                tile_sprite.batch = self.above_batch
                             layer_map[x, self.tilemap_size[1] - y - 1] = tile_sprite
                             condition = False
                         except KeyError:
@@ -169,6 +173,7 @@ class Tilemap:
         self.map = None
 
         self.batch = graphics.Batch()
+        self.above_batch = graphics.Batch()
         self.tilemap_size = [0, 0]
 
         self.sprite_list = []
