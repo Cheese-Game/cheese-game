@@ -2,7 +2,6 @@ from pyglet import shapes, graphics, text, font, resource, sprite, gui
 
 from logger import log
 
-
 class Hud:
     def __init__(self, screen_size, player,window) -> None:
         self.screen_width, self.screen_height = screen_size
@@ -25,7 +24,7 @@ class Hud:
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
-        log("zoom reset")
+        
     
     def create_hud(self) -> None:
         bg = shapes.Rectangle(x=self.screen_height/32, y=self.screen_height/32, width=32, height=32, color=(0, 0, 0, 128), batch=self.hud_batch)
@@ -66,7 +65,8 @@ class Hud:
     
     def create_popup(self, gid, x, y, w, h) -> None:
         self.close_popup()
-
+        x=self.screen_width/2-128
+        y=self.screen_height/2-64
         self.popupbatch = graphics.Batch()
         
         widnow = shapes.RoundedRectangle(x=x, y=y, width=w, height=h, radius=9, color=(122, 118, 156, 176), batch=self.popupbatch)
@@ -88,6 +88,7 @@ class Hud:
         close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, depressed=unpressed, batch=self.popupbatch)
         self.window.push_handlers(close_btn)
         
+        
         def on_press() -> None:
             self.close_popup()
         close_btn.set_handler('on_press', on_press)
@@ -99,14 +100,8 @@ class Hud:
     def close_popup(self) -> None:
         self.popup = None
         self.window.set_mouse_cursor (self.window.get_system_mouse_cursor(self.window.CURSOR_CROSSHAIR))
-    def relxy(self,x,y):
-        x=x+240
-        y=y+112
-        return x,y
-    def milkingmini(self):
-        udderimg=resource.image("assets/sprites/hud/minigame/udder.png",atlas=True)
-        udder=sprite.Sprite(udderimg,x=self.screen_width/2-128,y=self.screen_height/2-64,batch=self.popupbatch)
-        self.popup_components.append(udder)
+    
+    
 
 
         
