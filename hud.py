@@ -10,7 +10,6 @@ class Hud:
         self.inventory_open = False
         self.inventory_components = []
         self.inventory_batch = graphics.Batch()
-
         font.add_file('assets/font/PixelatedElegance.ttf')
 
         self.hud_components = []
@@ -20,6 +19,8 @@ class Hud:
 
         self.popup_components = []
         self.popup: graphics.Batch = None
+        self.popupbatch = graphics.Batch()
+
     
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
@@ -67,7 +68,6 @@ class Hud:
         self.close_popup()
         x=self.screen_width/2-128
         y=self.screen_height/2-64
-        self.popupbatch = graphics.Batch()
         
         widnow = shapes.RoundedRectangle(x=x, y=y, width=w, height=h, radius=9, color=(122, 118, 156, 176), batch=self.popupbatch)
 

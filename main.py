@@ -15,6 +15,11 @@ class Game:
     zoom = 1.0
     totalzoom = 1.0
     milk = False
+    dragintensity=0
+    x1=0
+    y1=0
+    minigameopen=False
+    
 
     def __init__(self) -> None:
         pyglet.app.run()
@@ -68,6 +73,19 @@ def zoom(recip=False) -> None:
 
 
 @window.event
+def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+    if buttons & pyglet.window.mouse.LEFT:
+        if Game.dragintensity == 0:
+            Game.x1, Game.y1 = x, y
+        
+        Game.dragintensity=Game.dragintensity+1
+@window.event        
+def on_mouse_release(x, y, button, modifiers):
+    if Game.dragintensity !=0:
+        minigame.getmousepos(Game.x1,Game.y1,Game.dragintensity)
+        print(Game.x1,Game.y1,Game.dragintensity)
+        Game.dragintensity=0
+@window.event
 def on_key_press(symbol, modifiers) -> None:
     if symbol == pyglet.window.key.W:
         pyglet.clock.schedule_interval(player.move_up, 1 / 60.0)
@@ -115,8 +133,9 @@ def on_key_press(symbol, modifiers) -> None:
             hud.close_popup()
         else:
             hud.create_popup(0, (Game.SIZE[0]/2-128)*Game.totalzoom, (Game.SIZE[1]/2-64)*Game.totalzoom, 256, 128)
-            minigame = Minigame(hud)
-            minigame.milkingmini()
+            
+            minigame.milkingmini("real")
+            Game.minigameopen=True
             window.set_mouse_cursor(window.get_system_mouse_cursor(window.CURSOR_HAND))
         Game.milk = not Game.milk
         
@@ -142,6 +161,8 @@ player.set_held_item(0)
 player.set_screen_size(1)
 
 hud = Hud(Game.SIZE, player,window)
+minigame = Minigame(hud)
+
 
 npcs = NPC_Manager(Game.SIZE)
 
