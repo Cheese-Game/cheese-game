@@ -1,6 +1,48 @@
 from math import sqrt, cos, sin, pi
-from pyglet import resource, sprite, clock
-from random import randint, random
+from pyglet import resource, sprite, clock, graphics
+from random import randint, random, shuffle
+
+
+class NPC_Manager:
+    def __init__(self, screen_size):
+        self.screen_height, self.screen_width = screen_size
+        
+        x_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        y_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+        x_velocities = [-20, -5, -15, -10, -5, 5, 10, 15, 20, 5]
+        y_velocities = [-25, -20, -15, -10, -5, 5, 10, 15, 20, 25]
+
+        shuffle(x_positions)
+        shuffle(y_positions)
+        shuffle(x_velocities)
+        shuffle(y_velocities)
+
+        self.child_flock = []
+        self.child_batch = graphics.Batch()
+
+        for i in range(10):
+            self.child_flock.append(Child(x_positions[i], y_positions[i], 
+                                    x_velocities[i], y_velocities[i],
+                                    self.child_batch, screen_size))
+            
+        self.cow = Cow(3.0, 3.0, 10, 10, screen_size)
+    
+    def set_screen_size(self, zoom) -> None:
+        self.screen_width /= zoom
+        self.screen_height /= zoom
+
+        self.cow.set_screen_size(zoom)
+
+        for child in self.child_flock:
+            child.set_screen_size(zoom)
+    
+    def draw(self, player_pos):
+        self.cow.draw(player_pos)
+
+        self.child_batch.draw()
+
+        for child in self.child_flock:
+            child.update(self.child_flock, player_pos)
 
 
 class Cow:
@@ -65,9 +107,9 @@ class Child:
         self.image = resource.image('assets/sprites/player/front-default.png', atlas=True)
         self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=batch)
         
-    def get_screen_size(self, zoom) -> None:
-        self.screen_width = self.screen_width / zoom
-        self.screen_height = self.screen_height / zoom
+    def set_screen_size(self, zoom) -> None:
+        self.screen_width /= zoom
+        self.screen_height /= zoom
 
     def get_pos(self) -> list:
         return self.position

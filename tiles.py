@@ -55,8 +55,8 @@ class Tilemap:
         self.parse_map()
 
     def set_screen_size(self, zoom) -> None:
-        self.screen_width = self.screen_width/zoom
-        self.screen_height = self.screen_height/zoom
+        self.screen_width /= zoom
+        self.screen_height /= zoom
 
     def parse_map(self) -> None:
         with open(self.filename) as tmap:
@@ -161,4 +161,26 @@ class Tilemap:
             if self.get_tile(tile, 1) != 0:
                 return True
         return False
+    
+    def load_new_tilemap(self, filename):
+        self.filename = filename
+        
+        self.tileset = None
+        self.map = None
+
+        self.batch = graphics.Batch()
+        self.tilemap_size = [0, 0]
+
+        self.sprite_list = []
+
+        self.tile_list = None
+
+        self.parse_map()
+
+
+
+def id_to_file(id) -> str:
+    match id:
+        case 0:
+            return "assets/tilemap/area1.tmx"
 

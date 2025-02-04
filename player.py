@@ -14,6 +14,7 @@ class Player:
         self.inventory = []
         self.current_item = None
         self.can_move = True
+        self.current_area = 0
 
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
@@ -34,25 +35,25 @@ class Player:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 0):
                 self.position[1] += int(Player.SPEED * dt * 4) / 4
-                self.sprite = self.sprites.sprite_back_default
+            self.sprite = self.sprites.sprite_back_default
         
     def move_down(self, dt) -> None:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 1):
                 self.position[1] -= int(Player.SPEED * dt * 4) / 4
-                self.sprite = self.sprites.sprite_front_default
+            self.sprite = self.sprites.sprite_front_default
 
     def move_left(self, dt) -> None:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 2):
                 self.position[0] -= int(Player.SPEED * dt * 4) / 4
-                self.sprite = self.sprites.sprite_left_default
+            self.sprite = self.sprites.sprite_left_default
 
     def move_right(self, dt) -> None:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 3):
                 self.position[0] += int(Player.SPEED * dt * 4) / 4
-                self.sprite = self.sprites.sprite_right_default
+            self.sprite = self.sprites.sprite_right_default
 
     def draw(self) -> None:
         self.sprite.draw()
