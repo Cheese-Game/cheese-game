@@ -4,9 +4,10 @@ from random import randint, random, shuffle
 
 
 class NPC_Manager:
-    def __init__(self, screen_size, player):
+    def __init__(self, screen_size, player, tilemap):
         self.screen_height, self.screen_width = screen_size
         self.player = player
+        self.tilemap = tilemap
 
         self.npc_list = []
 
@@ -39,7 +40,7 @@ class NPC_Manager:
             })
     
     def initialise_cows(self) -> None:
-        self.cow = Cow(3.0, 3.0, 10, 10, (self.screen_width, self.screen_height))
+        self.cow = Cow(3.0, 3.0, 10, (self.screen_width, self.screen_height), self.tilemap)
 
         self.npc_list.append({
             "npc": self.cow,
@@ -65,11 +66,11 @@ class NPC_Manager:
 class Cow:
     MAX_SPEED = 30.0
 
-    def __init__(self, x, y, vx, vy, screen_size) -> None:
+    def __init__(self, x, y, speed, screen_size, tilemap) -> None:
         self.position = [x, y]
-        self.velocity = [vx, vy]
-
+        self.speed = speed
         self.screen_width, self.screen_height = screen_size
+        self.tilemap = tilemap
 
         self.image = resource.image(f'assets/sprites/creature/cow{randint(1,2)}.png', atlas=True)
 
@@ -78,9 +79,10 @@ class Cow:
         clock.schedule_once(self.random_movement, randint(1, 5))
     
     def random_movement(self, _) -> None:
-        self.set_direction(random() * 2 * pi)
+        #self.set_direction(random() * 2 * pi)
 
-        clock.schedule_interval_for_duration(self.move, 1/60, 4)
+        direction = randint(0, 3)
+        clock.schedule_interval_for_duration(self.move, 1/60, 4, direction=direction)
 
         clock.schedule_once(self.random_movement, randint(5, 10))
 
@@ -99,12 +101,21 @@ class Cow:
 
         self.sprite.draw()
 
-    def set_direction(self, direction) -> None:
-        self.velocity = [cos(direction), sin(direction)]
+    #def set_direction(self, direction) -> None:
+    #    self.velocity = [cos(direction), sin(direction)]
 
-    def move(self, dt) -> None:
-        self.position[0] += self.velocity[0] * dt * 2
-        self.position[1] += self.velocity[1] * dt * 2
+    def move(self, dt, direction) -> None:
+        if not self.tilemap.test_collisions(self.position, direction):
+            match direction:
+                case 0:
+                    self.position[0] += self.speed * dt * 2
+                case 1:
+                    self.position[0] -= self.speed * dt * 2
+                case 2:
+                    self.position[1] -= self.speed * dt * 2
+                case 3:
+                    self.position[1] -= self.speed * dt * 2
+
 
 
 class Child:

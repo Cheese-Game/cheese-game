@@ -174,7 +174,7 @@ player.set_screen_size(1)
 hud = Hud(Game.SIZE, player, window)
 minigame = Minigame(hud)
 
-npcs = NPC_Manager(Game.SIZE, player)
+npcs = NPC_Manager(Game.SIZE, player, tilemap)
 
 held_movement_keys = []
 
