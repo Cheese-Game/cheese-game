@@ -125,6 +125,8 @@ class Tilemap:
                     tile.y = j * 16 + self.screen_height // 2 - y * 16
     
     def get_tile(self, position: tuple, layer: int) -> sprite.Sprite | int:
+        if position[0] <= -1 or position[1] <= -1:
+            return 0
         try:
             return self.tilemap[layer][position]
         except IndexError:
@@ -134,32 +136,38 @@ class Tilemap:
         match direction:
             # moving up
             case 0: 
-                tiles = [(round(pos[0]), floor(pos[1] + 1))]
+                tiles = [(round(pos[0]), ceil(pos[1]))]
 
                 if pos[0] - floor(pos[0]) <= 0.25:
-                    tiles.append((round(pos[0]) - 1, floor(pos[1] + 1)))
+                    tiles.append((round(pos[0]) - 1, ceil(pos[1])))
                 elif pos[0] - floor(pos[0]) >= 0.75:
-                    tiles.append((round(pos[0]) + 1, floor(pos[1] + 1)))
+                    tiles.append((round(pos[0]) + 1, ceil(pos[1])))
             # moving down
             case 1:
-                tiles = [(round(pos[0]), ceil(pos[1] - 1))]
+
+                # to check tile [10, 10]
+                # player at [10, 11.25]
+                tiles = [(round(pos[0]), floor(pos[1] - 0.5))]
                 
                 if pos[0] - floor(pos[0]) <= 0.25:
-                    tiles.append((round(pos[0]) - 1, floor(pos[1] - 1)))
+                    tiles.append((round(pos[0]) - 1, floor(pos[1] - 0.5)))
                 elif pos[0] - floor(pos[0]) >= 0.75:
-                    tiles.append((round(pos[0]) + 1, floor(pos[1] - 1)))
+                    tiles.append((round(pos[0]) + 1, floor(pos[1] - 0.5)))
             # moving left
             case 2:
-                tiles = [(ceil(pos[0] - 1), round(pos[1]))]
+                tiles = [(floor(pos[0]), round(pos[1]))]
 
-                if pos[1] - floor(pos[1]) <= 0.25:
-                    tiles.append((floor(pos[0] - 1), round(pos[1]) + 1))
+                if pos[1] - floor(pos[1]) >= 0.5:
+                    tiles.append((ceil(pos[0] - 1), round(pos[1]) + 1))
             # moving right
             case 3:
-                tiles = [(floor(pos[0] + 1), round(pos[1]))]
+                tiles = [(ceil(pos[0]), round(pos[1]))]
 
-                if pos[1] - floor(pos[1]) <= 0.25:
+                if pos[1] - floor(pos[1]) >= 0.5:
                     tiles.append((floor(pos[0] + 1), round(pos[1]) + 1))
+        
+        log(pos)
+        log(tiles)
 
         for tile in tiles:
             if self.get_tile(tile, 1) != 0:

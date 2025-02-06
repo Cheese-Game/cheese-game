@@ -9,7 +9,7 @@ from logger import log
 from npc import NPC_Manager
 from hud import Hud
 from minigame import Minigame
-
+from lang import Lang
 
 class Game:
     SIZE = 640, 480
@@ -26,8 +26,9 @@ class Game:
 
         log("Game running")
 
+lang = Lang("en-gb")
 
-window = pyglet.window.Window(*Game.SIZE, vsync=False, caption="Cheese Game")
+window = pyglet.window.Window(*Game.SIZE, vsync=False, caption=lang.get_string("name"))
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 window.set_icon(
     pyglet.resource.image("assets/sprites/player/front-default.png"))
