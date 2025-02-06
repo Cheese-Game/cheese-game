@@ -96,8 +96,10 @@ class Hud:
 
         self.popup = self.popupbatch
         
-
+    def getpopupbatch(self):
+        return self.popupbatch,self.popup_components
     def close_popup(self) -> None:
+        self.popup_components.clear()
         self.popup = None
         self.window.set_mouse_cursor (self.window.get_system_mouse_cursor(self.window.CURSOR_CROSSHAIR))
     
