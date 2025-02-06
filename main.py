@@ -2,6 +2,7 @@ import pyglet
 
 import item
 import cursor
+import math
 
 from player import Player
 from tiles import Tilemap, id_to_file
@@ -18,6 +19,7 @@ class Game:
     milk = False
     dragintensity = 0
     x1 = 0
+    rectangle=pyglet.shapes.Rectangle(1,1,1,1,(0,0,0,0))
     y1 = 0
     minigameopen = False
 
@@ -48,6 +50,7 @@ def on_draw():
     tilemap.batch.draw()
     player.draw()
     tilemap.above_batch.draw()
+    npcs.draw(player.get_pos())
     hud.hud_batch.draw()
     fps_display.draw()
 
@@ -57,7 +60,7 @@ def on_draw():
     if hud.popup is not None:
         hud.popup.draw()
 
-    npcs.draw(player.get_pos())
+    
 
 
 def zoom(recip=False) -> None:
@@ -74,18 +77,31 @@ def zoom(recip=False) -> None:
 @window.event
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
     if buttons & pyglet.window.mouse.LEFT:
+        if Game.milk:
+            colour=(255, 163, 177)
+        else:
+            colour=(255,255,1)
         if Game.dragintensity == 0:
             Game.x1, Game.y1 = x, y
 
+        Game.rectangle.opacity=0
         Game.dragintensity = Game.dragintensity + 1
+        if y-Game.y1<0:
+            
+            Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (10), (-(math.sqrt((x-Game.x1)**2+(y-Game.y1)**2))), color=colour, batch=hud.getpopupbatch()[0])
+            Game.rectangle.rotation=math.degrees(math.atan((x-Game.x1)/(y-Game.y1)))
+            
+            hud.getpopupbatch()[1].append(Game.rectangle)
 
 
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     if Game.dragintensity != 0:
-        minigame.getmousepos(Game.x1, Game.y1, Game.dragintensity)
-        print(Game.x1, Game.y1, Game.dragintensity)
+        Game.rectangle.opacity=0
+        minigame.getmousepos(Game.x1, Game.y1, Game.dragintensity,hud)
+        
         Game.dragintensity = 0
+        
 
 
 @window.event
@@ -127,6 +143,13 @@ def on_key_press(symbol, modifiers) -> None:
             hud.close_inventory()
         else:
             hud.open_inventory()
+    elif symbol == pyglet.window.key.F:
+        Game.milk=False
+        hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
+             (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,
+             128)
+        minigame.milkingmini("drain")
+        Game.minigameopen=True
     elif symbol == pyglet.window.key.M:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()
@@ -134,20 +157,17 @@ def on_key_press(symbol, modifiers) -> None:
         if playerpos[0] > cowpos[0] + 2 or playerpos[
                 0] < cowpos[0] - 2 or playerpos[
                     1] > cowpos[1] + 2 or playerpos[1] < cowpos[1] - 2:
-            hud.close_popup()
-            return
-
-        if Game.milk:
-            hud.close_popup()
-        else:
-            hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
+            if Game.milk:
+                hud.close_popup()
+            else:
+                hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
                              (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,
                              128)
-            minigame.milkingmini("real")
-            Game.minigameopen = True
+                minigame.milkingmini("real")
+                Game.minigameopen = not Game.minigameopen
 
-            cursor.set_cursor(window, cursor.HAND)
-        Game.milk = not Game.milk
+                cursor.set_cursor(window, cursor.HAND)
+            Game.milk = not Game.milk
 
 
 @window.event
