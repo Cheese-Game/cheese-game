@@ -64,7 +64,7 @@ class NPC_Manager:
 
 
 class Cow:
-    MAX_SPEED = 30.0
+    MAX_SPEED = 1.0
 
     def __init__(self, x, y, speed, screen_size, tilemap) -> None:
         self.position = [x, y]

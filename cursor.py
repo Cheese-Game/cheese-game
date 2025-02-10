@@ -1,4 +1,4 @@
-from pyglet.window import MouseCursor, ImageMouseCursor
+from pyglet.window import ImageMouseCursor
 from pyglet import resource
 
 CURSORS = resource.image('assets/sprites/cursor.png')

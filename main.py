@@ -67,8 +67,11 @@ def zoom(recip=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
     player.set_screen_size(z)
     tilemap.set_screen_size(z)
+    minigame.set_screen_size(z)
     hud.set_screen_size(z)
     npcs.set_screen_size(z)
+    hud.close_popup()
+    hud.close_inventory()
 
     if hud.inventory_open:
         hud.close_inventory()
@@ -76,7 +79,7 @@ def zoom(recip=False) -> None:
 
 @window.event
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
-    if buttons & pyglet.window.mouse.LEFT:
+    if buttons & pyglet.window.mouse.LEFT and Game.minigameopen:
         if Game.milk:
             colour=(255, 163, 177)
         else:
@@ -116,11 +119,11 @@ def on_key_press(symbol, modifiers) -> None:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
     elif (symbol == pyglet.window.key.PLUS or
           (symbol == pyglet.window.key.EQUAL and modifiers
-           and pyglet.window.key.MOD_SHIFT)) and Game.zoom < 3.0:
+           and pyglet.window.key.MOD_SHIFT)) and Game.totalzoom < 3.0:
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
         Game.totalzoom *= Game.zoom
         zoom()
-    elif symbol == pyglet.window.key.MINUS and Game.zoom > 0.101:
+    elif symbol == pyglet.window.key.MINUS and Game.totalzoom > 0.101:
         window.view = window.view.scale(
             (1 / Game.zoom, 1 / Game.zoom, Game.zoom))
         Game.totalzoom /= Game.zoom
@@ -154,9 +157,7 @@ def on_key_press(symbol, modifiers) -> None:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()
 
-        if playerpos[0] > cowpos[0] + 2 or playerpos[
-                0] < cowpos[0] - 2 or playerpos[
-                    1] > cowpos[1] + 2 or playerpos[1] < cowpos[1] - 2:
+        if playerpos==cowpos or (playerpos[0]<cowpos[0]+32 and playerpos[0]>cowpos[0]-32 and playerpos[1]<cowpos[1]+32 and playerpos[1]>cowpos[1]-32):
             if Game.milk:
                 hud.close_popup()
             else:
@@ -164,9 +165,10 @@ def on_key_press(symbol, modifiers) -> None:
                              (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,
                              128)
                 minigame.milkingmini("real")
-                Game.minigameopen = not Game.minigameopen
 
                 cursor.set_cursor(window, cursor.HAND)
+            Game.minigameopen = not Game.minigameopen
+
             Game.milk = not Game.milk
 
 

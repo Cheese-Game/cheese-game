@@ -166,8 +166,8 @@ class Tilemap:
                 if pos[1] - floor(pos[1]) >= 0.5:
                     tiles.append((floor(pos[0] + 1), round(pos[1]) + 1))
         
-        log(pos)
-        log(tiles)
+        #log(pos)
+        #log(tiles)
 
         for tile in tiles:
             if self.get_tile(tile, 1) != 0:
