@@ -2,8 +2,15 @@ from pyglet import resource, sprite, graphics
 from xml.etree.ElementTree import parse
 from numpy import zeros
 from math import floor, ceil
+from os import path
 
 from logger import log
+
+
+class Tile(sprite.Sprite):
+    def __init__(self, img, x, y, action=None) -> None:
+        super().__init__(img, x, y)
+        self.action = action
 
 
 class Tileset:
@@ -23,13 +30,9 @@ class Tileset:
             if tile.tag == "grid":
                 continue
 
-            path_to_tsx = self.filename
-            while path_to_tsx[-1] != '/':
-                path_to_tsx = path_to_tsx[:-1]
+            img_path = path.dirname(self.filename) + '/' + tile[0].attrib['source']
 
-            path = path_to_tsx + tile[0].attrib['source']
-
-            image = resource.image(path)
+            image = resource.image(img_path)
 
             tile_id = int(tile.attrib['id'])
             while tile_id > len(self.tiles):
@@ -68,7 +71,7 @@ class Tilemap:
             int(root.attrib['height'])
         ]
 
-        self.tileset = Tileset(root[0].attrib['source'].replace('..', 'assets'))
+        self.tileset = Tileset(path.dirname(self.filename) + '/' + root[0].attrib['source'])
         self.tileset.parse_tileset()
 
         tile_list = self.tileset.get_tiles()
@@ -97,7 +100,7 @@ class Tilemap:
                     condition = True
                     while condition:
                         try:
-                            tile_sprite = sprite.Sprite(
+                            tile_sprite = Tile(
                                 tile_list[tile_id],
                                 x * 16 + self.screen_width // 2 - x * 16, 
                                 y * 16 + self.screen_height // 2 - y * 16)
@@ -124,7 +127,7 @@ class Tilemap:
                     tile.x = i * 16 + self.screen_width // 2 - x * 16
                     tile.y = j * 16 + self.screen_height // 2 - y * 16
     
-    def get_tile(self, position: tuple, layer: int) -> sprite.Sprite | int:
+    def get_tile(self, position: tuple, layer: int) -> Tile | int:
         if position[0] <= -1 or position[1] <= -1:
             return 0
         try:
@@ -144,9 +147,6 @@ class Tilemap:
                     tiles.append((round(pos[0]) + 1, ceil(pos[1])))
             # moving down
             case 1:
-
-                # to check tile [10, 10]
-                # player at [10, 11.25]
                 tiles = [(round(pos[0]), floor(pos[1] - 0.5))]
                 
                 if pos[0] - floor(pos[0]) <= 0.25:
@@ -155,26 +155,26 @@ class Tilemap:
                     tiles.append((round(pos[0]) + 1, floor(pos[1] - 0.5)))
             # moving left
             case 2:
-                tiles = [(floor(pos[0]), round(pos[1]))]
+                tiles = [(floor(pos[0] - 0.75), floor(pos[1] - 0.25))]
 
                 if pos[1] - floor(pos[1]) >= 0.5:
-                    tiles.append((ceil(pos[0] - 1), round(pos[1]) + 1))
+                    tiles.append((floor(pos[0] - 0.75), floor(pos[1] - 0.25) + 1))
             # moving right
             case 3:
-                tiles = [(ceil(pos[0]), round(pos[1]))]
+                tiles = [(ceil(pos[0]), floor(pos[1] - 0.25))]
 
                 if pos[1] - floor(pos[1]) >= 0.5:
-                    tiles.append((floor(pos[0] + 1), round(pos[1]) + 1))
+                    tiles.append((ceil(pos[0]), floor(pos[1] - 0.25) + 1))
         
-        log(pos)
-        log(tiles)
+        #log(pos)
+        #log(tiles)
 
         for tile in tiles:
             if self.get_tile(tile, 1) != 0:
                 return True
         return False
     
-    def load_new_tilemap(self, filename):
+    def load_new_tilemap(self, filename) -> None:
         self.filename = filename
         
         self.tileset = None
@@ -190,10 +190,4 @@ class Tilemap:
 
         self.parse_map()
 
-
-
-def id_to_file(id) -> str:
-    match id:
-        case 0:
-            return "assets/tilemap/area1.tmx"
 

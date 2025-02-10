@@ -14,7 +14,8 @@ class Player:
         self.inventory = []
         self.current_item = None
         self.can_move = True
-        self.current_area = 0
+        self.current_area = "europe"
+        self.current_tilemap = "europe"
 
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom

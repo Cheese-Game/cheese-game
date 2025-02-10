@@ -1,15 +1,19 @@
-from math import sqrt, cos, sin, pi
+from math import sqrt#, cos, sin, pi
 from pyglet import resource, sprite, clock, graphics
 from random import randint, random, shuffle
+from json import load
+
+from logger import log
 
 
 class NPC_Manager:
-    def __init__(self, screen_size, player, tilemap):
-        self.screen_height, self.screen_width = screen_size
+    def __init__(self, screen_size, player, tilemap) -> None:
+        self.screen_width, self.screen_height = screen_size
         self.player = player
         self.tilemap = tilemap
 
         self.npc_list = []
+        self.batch = graphics.Batch()
 
         self.initialise_children()
         self.initialise_cows()
@@ -17,7 +21,7 @@ class NPC_Manager:
     def initialise_children(self) -> None:
         x_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
         y_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-        x_velocities = [-20, -5, -15, -10, -5, 5, 10, 15, 20, 5]
+        x_velocities = [-20, -25, -15, -10, -5, 5, 10, 15, 20, 25]
         y_velocities = [-25, -20, -15, -10, -5, 5, 10, 15, 20, 25]
 
         shuffle(x_positions)
@@ -26,80 +30,77 @@ class NPC_Manager:
         shuffle(y_velocities)
 
         self.child_flock = []
-        self.child_batch = graphics.Batch()
 
         for i in range(10):
             self.child_flock.append(Child(x_positions[i], y_positions[i], 
                                     x_velocities[i], y_velocities[i],
-                                    self.child_batch, (self.screen_width, self.screen_height)))
+                                    self.batch, (self.screen_width, self.screen_height)))
         
         for child in self.child_flock:
-            self.npc_list.append({
-                "npc": child, 
-                "area": self.player.current_area
-            })
+            self.npc_list.append(child)
     
     def initialise_cows(self) -> None:
-        self.cow = Cow(3.0, 3.0, 10, (self.screen_width, self.screen_height), self.tilemap)
+        self.cow = Cow(3.0, 3.0, 1, (self.screen_width, self.screen_height), self.batch, self.tilemap)
 
-        self.npc_list.append({
-            "npc": self.cow,
-            "area": self.player.current_area
-        })
+        self.npc_list.append(self.cow)
     
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
 
         for npc in self.npc_list:
-            npc['npc'].set_screen_size(zoom)
+            npc.set_screen_size(zoom)
     
-    def draw(self, player_pos):
-        self.cow.draw(player_pos)
+    def draw(self, player_pos) -> None:
+        self.batch.draw()
 
-        self.child_batch.draw()
+        for npc in self.npc_list:
+            npc.update(self.child_flock, player_pos)
 
-        for child in self.child_flock:
-            child.update(self.child_flock, player_pos)
+    def set_tilemap(self, name) -> None:
+        #with open(f"assets/npc_info/{name}.json") as file:
+        #    data = load(file)
+        self.cow = None
+        for npc in self.npc_list:
+            npc.batch = None
+            del npc
+        self.npc_list = []
+        self.batch = graphics.Batch()
 
 
 class Cow:
-    MAX_SPEED = 30.0
-
-    def __init__(self, x, y, speed, screen_size, tilemap) -> None:
+    def __init__(self, x, y, speed: float, screen_size, batch, tilemap) -> None:
         self.position = [x, y]
         self.speed = speed
         self.screen_width, self.screen_height = screen_size
+        self.batch = batch
         self.tilemap = tilemap
 
         self.image = resource.image(f'assets/sprites/creature/cow{randint(1,2)}.png', atlas=True)
 
-        self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1])
+        self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=self.batch)
 
         clock.schedule_once(self.random_movement, randint(1, 5))
     
     def random_movement(self, _) -> None:
         #self.set_direction(random() * 2 * pi)
 
-        direction = randint(0, 3)
-        clock.schedule_interval_for_duration(self.move, 1/60, 4, direction=direction)
+        clock.schedule_interval_for_duration(self.move, 1/60, randint(1, 5), direction=randint(0, 3))
 
-        clock.schedule_once(self.random_movement, randint(5, 10))
+        clock.schedule_once(self.random_movement, randint(5, 15))
 
     def set_screen_size(self, zoom) -> None:
-        self.screen_width = self.screen_width / zoom
-        self.screen_height = self.screen_height / zoom
+        self.screen_width /= zoom
+        self.screen_height /= zoom
 
     def get_pos(self) -> list:
         return self.position
 
-    def draw(self, player_pos) -> None:
+    def update(self, _, player_pos) -> None:
         x, y = player_pos
 
-        self.sprite.x = self.screen_width // 2 - x * 16 + self.position[0] * 16
-        self.sprite.y = self.screen_height // 2 - y * 16 + self.position[1] * 16
-
-        self.sprite.draw()
+        self.sprite.x = self.position[0] * 16 + self.screen_width // 2 - x * 16
+        self.sprite.y = self.position[1] * 16 + self.screen_height // 2 - y * 16
 
     #def set_direction(self, direction) -> None:
     #    self.velocity = [cos(direction), sin(direction)]
@@ -108,13 +109,13 @@ class Cow:
         if not self.tilemap.test_collisions(self.position, direction):
             match direction:
                 case 0:
-                    self.position[0] += self.speed * dt * 2
+                    self.position[0] += self.speed * dt
                 case 1:
-                    self.position[0] -= self.speed * dt * 2
+                    self.position[0] -= self.speed * dt
                 case 2:
-                    self.position[1] -= self.speed * dt * 2
+                    self.position[1] -= self.speed * dt
                 case 3:
-                    self.position[1] -= self.speed * dt * 2
+                    self.position[1] += self.speed * dt
 
 
 

@@ -1,11 +1,11 @@
 import pyglet
+import math
 
 import item
 import cursor
-import math
 
 from player import Player
-from tiles import Tilemap, id_to_file
+from tiles import Tilemap
 from logger import log
 from npc import NPC_Manager
 from hud import Hud
@@ -134,10 +134,13 @@ def on_key_press(symbol, modifiers) -> None:
     elif symbol == pyglet.window.key.B:
         pyglet.app.exit()
     elif symbol == pyglet.window.key.C:
-        if tilemap.filename == "assets/tilemap/cheese_room.tmx":
-            tilemap.load_new_tilemap(id_to_file(player.current_area))
+        if tilemap.filename == "assets/tiles/cheese_room/cheese_room.tmx":
+            tilemap.load_new_tilemap(f"assets/tiles/{player.current_area}/{player.current_area}.tmx")
+            player.current_tilemap = player.current_area
         else:
-            tilemap.load_new_tilemap("assets/tilemap/cheese_room.tmx")
+            tilemap.load_new_tilemap("assets/tiles/cheese_room/cheese_room.tmx")
+            player.current_tilemap = "cheese_room"
+        npcs.set_tilemap(player.current_tilemap)
     elif symbol == pyglet.window.key.E:
         if hud.inventory_open:
             hud.close_inventory()
@@ -154,9 +157,8 @@ def on_key_press(symbol, modifiers) -> None:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()
 
-        if playerpos[0] > cowpos[0] + 2 or playerpos[
-                0] < cowpos[0] - 2 or playerpos[
-                    1] > cowpos[1] + 2 or playerpos[1] < cowpos[1] - 2:
+        if playerpos[0] > cowpos[0] + 2 or playerpos[0] < cowpos[0] - 2 or \
+        playerpos[1] > cowpos[1] + 2 or playerpos[1] < cowpos[1] - 2:
             if Game.milk:
                 hud.close_popup()
             else:
@@ -184,7 +186,7 @@ def on_key_release(symbol, _) -> None:
 
 fps_display = pyglet.window.FPSDisplay(window=window)
 
-tilemap = Tilemap('assets/tilemap/area1.tmx', Game.SIZE)
+tilemap = Tilemap('assets/tiles/europe/europe.tmx', Game.SIZE)
 
 player = Player('assets/sprites/player/', Game.SIZE, tilemap)
 player.give(item.MUG, 1)
