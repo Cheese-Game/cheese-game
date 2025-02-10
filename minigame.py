@@ -7,6 +7,10 @@ class Minigame:
     self.popup_components=hud.popup_components
     self.corner1=self.screen_width/2-128,self.screen_height/2-64
     self.milkingmininit=False
+  def set_screen_size(self, zoom) -> None:
+    self.screen_width /= zoom
+    self.screen_height /= zoom
+    self.corner1=self.screen_width/2-128,self.screen_height/2-64
   def returnmilk(self,hud):
     print("mug full. put code to fill mug here later")
     self.milk=0
