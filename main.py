@@ -59,6 +59,8 @@ def on_draw():
 
     if hud.popup is not None:
         hud.popup.draw()
+    else:
+        Game.minigameopen=False
 
     
 
@@ -84,14 +86,17 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
             colour=(255, 163, 177)
         else:
             colour=(255,255,1)
+        minigame.fetch_colour(x,y)
         if Game.dragintensity == 0:
             Game.x1, Game.y1 = x, y
 
         Game.rectangle.opacity=0
         Game.dragintensity = Game.dragintensity + 1
         if y-Game.y1<0:
-            
-            Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (10), (-(math.sqrt((x-Game.x1)**2+(y-Game.y1)**2))), color=colour, batch=hud.getpopupbatch()[0])
+            if (math.sqrt((x-Game.x1)**2+(y-Game.y1)**2)) >= 100:
+                Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (8.4), (-100), color=colour, batch=hud.getpopupbatch()[0])
+            else:
+                Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (12/(math.sqrt((x-Game.x1)**2+(y-Game.y1)**2))**0.096689), (-(math.sqrt((x-Game.x1)**2+(y-Game.y1)**2))), color=colour, batch=hud.getpopupbatch()[0])
             Game.rectangle.rotation=math.degrees(math.atan((x-Game.x1)/(y-Game.y1)))
             
             hud.getpopupbatch()[1].append(Game.rectangle)
@@ -170,7 +175,8 @@ def on_key_press(symbol, modifiers) -> None:
                 minigame.milkingmini("real")
 
                 cursor.set_cursor(window, cursor.HAND)
-            Game.minigameopen = not Game.minigameopen
+                Game.minigameopen=True
+            
 
             Game.milk = not Game.milk
 
