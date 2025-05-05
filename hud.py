@@ -3,6 +3,7 @@ from pyglet import shapes, graphics, text, font, resource, sprite, gui
 from logger import log
 
 
+
 class Hud:
 
     def __init__(self, screen_size, player, window) -> None:
@@ -86,9 +87,10 @@ class Hud:
         for i in self.inventory_components:
             i.batch = None
         self.inventory_open = False
-
-    def create_popup(self, gid, x, y, w, h) -> None:
-        self.close_popup()
+    
+    def create_popup(self, gid, x, y, w, h,player) -> None:
+        self.close_popup(player)
+        player.can_move=False
         x = self.screen_width / 2 - 128
         y = self.screen_height / 2 - 64
 
@@ -154,7 +156,7 @@ class Hud:
         self.window.push_handlers(close_btn)
 
         def on_press(_) -> None:
-            self.close_popup()
+            self.close_popup(player)
 
         close_btn.set_handler('on_press', on_press)
         self.popup_components.extend([
@@ -167,8 +169,9 @@ class Hud:
     def getpopupbatch(self):
         return self.popupbatch, self.popup_components
 
-    def close_popup(self) -> None:
+    def close_popup(self,player) -> None:
         self.popup_components.clear()
+        player.can_move = True
         self.popup = None
         self.window.set_mouse_cursor(
             self.window.get_system_mouse_cursor(self.window.CURSOR_CROSSHAIR))

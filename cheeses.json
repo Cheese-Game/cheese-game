@@ -1,0 +1,27 @@
+[
+  {
+    "cheese": "Mozzarella",
+    "games":["kneading"],
+    "ingredients":["cow_milk","rennet","citric_acid"],
+    "amounts":[1,0.75,0.5],
+    "hardness":100,
+    "description":"basic."
+  },
+  {
+    "cheese": "Cheddar",
+    "games":[],
+    "ingredients":["cow_milk","rennet","citric_acid","culture"],
+    "amounts":[1,0.75,0.5,0.6],
+    "hardness":300,
+    "description":"The most pure cheese by definition in most cultures."
+  },
+  {
+    "cheese": "Curd cheese",
+    "games":[],
+    "ingredients":["cow_milk","rennet","citric_acid"],
+    "amounts":[1,0.75,0.5,0.6],
+    "hardness":0,
+    "description":"Just curds:edible."
+  }
+
+]
