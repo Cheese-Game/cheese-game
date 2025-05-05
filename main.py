@@ -19,7 +19,7 @@ class Game:
     milk = False
     dragintensity = 0
     x1 = 0
-    rectangle=pyglet.shapes.Rectangle(1,1,1,1,(0,0,0,0))
+    rectangle = pyglet.shapes.Rectangle(1,1,1,1,(0,0,0,0))
     y1 = 0
     minigameopen = False
 
@@ -32,8 +32,7 @@ lang = Lang("en-gb")
 
 window = pyglet.window.Window(*Game.SIZE, vsync=False, caption=lang.get_string("name"))
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
-window.set_icon(
-    pyglet.resource.image("assets/sprites/player/front-default.png"))
+window.set_icon(pyglet.resource.image("assets/sprites/player/front-default.png"))
 Game.zoom = 2.0
 
 cursor.set_cursor(window, cursor.CROSSHAIR)
@@ -41,16 +40,16 @@ cursor.set_cursor(window, cursor.CROSSHAIR)
 
 @window.event
 def on_draw():
-    tilemap.adjust_position(player.get_pos())
     window.clear()
     pyglet.gl.glTexParameteri(pyglet.gl.GL_TEXTURE_2D,
                               pyglet.gl.GL_TEXTURE_MAG_FILTER,
                               pyglet.gl.GL_NEAREST)
 
-    tilemap.batch.draw()
+    tilemap.adjust_position(player.get_pos())
+    tilemap.bg_batch.draw()
     player.draw()
-    tilemap.above_batch.draw()
     npcs.draw(player.get_pos())
+    tilemap.fg_batch.draw()
     hud.hud_batch.draw()
     fps_display.draw()
 
@@ -60,25 +59,25 @@ def on_draw():
     if hud.popup is not None:
         hud.popup.draw()
 
-    
 
 
-def zoom(recip=False) -> None:
+def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
+
     player.set_screen_size(z)
     tilemap.set_screen_size(z)
     minigame.set_screen_size(z)
     hud.set_screen_size(z)
     npcs.set_screen_size(z)
+
     hud.close_popup()
     hud.close_inventory()
 
     if hud.inventory_open:
         hud.close_inventory()
 
-
 @window.event
-def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+def on_mouse_drag(x: float, y: float, dx:float, dy:float, buttons, modifiers):
     if buttons & pyglet.window.mouse.LEFT and Game.minigameopen:
         if Game.milk:
             colour=(255, 163, 177)
@@ -127,7 +126,7 @@ def on_key_press(symbol, modifiers) -> None:
         window.view = window.view.scale(
             (1 / Game.zoom, 1 / Game.zoom, Game.zoom))
         Game.totalzoom /= Game.zoom
-        zoom(True)
+        zoom(recip=True)
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom
         window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
@@ -200,7 +199,5 @@ hud = Hud(Game.SIZE, player, window)
 minigame = Minigame(hud)
 
 npcs = NPC_Manager(Game.SIZE, player, tilemap)
-
-held_movement_keys = []
 
 game = Game()

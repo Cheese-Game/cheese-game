@@ -8,7 +8,7 @@ class Player:
     def __init__(self, sprite_path, screen_size, tilemap) -> None:
         self.screen_width, self.screen_height = screen_size
         self.tilemap = tilemap
-        self.position = [0.0, 0.0]
+        self.position = [125.0, 125.0]
         self.sprites = PlayerSprites(sprite_path, screen_size)
         self.sprite = self.sprites.sprite_front_default
         self.inventory = []

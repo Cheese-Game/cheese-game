@@ -5,16 +5,33 @@
     },
     "activeFile": "tiles/europe/europe.tmx",
     "expandedProjectPaths": [
-        "tiles",
-        "tileset",
-        "tiles/cheese_room",
-        "tiles/europe",
-        "tilemap",
         ".",
+        "tileset",
+        "tiles/europe",
+        "tiles",
+        "tilemap",
         "tileset/cheese_room",
-        "tileset/area1"
+        "tileset/area1",
+        "tiles/cheese_room"
     ],
     "fileStates": {
+        "C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/Content (unpacked)/Maps/AbandonedJojaMart.tmx": {
+            "scale": 3.0875,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 143.96761133603238,
+                "y": 135.87044534412956
+            }
+        },
+        "C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/Content (unpacked)/Maps/AbandonedJojaMart.tmx#indoor": {
+            "scaleInDock": 1
+        },
+        "C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/Content (unpacked)/Maps/AbandonedJojaMart.tmx#paths": {
+            "scaleInDock": 1
+        },
+        "C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/Content (unpacked)/Maps/AbandonedJojaMart.tmx#untitled tile sheet": {
+            "scaleInDock": 1
+        },
         "tilemap/area1.tmx": {
             "scale": 2,
             "selectedLayer": 0,
@@ -33,23 +50,23 @@
         },
         "tiles/cheese_room/cheese_room.tmx": {
             "scale": 1.8524999999999998,
-            "selectedLayer": 0,
+            "selectedLayer": 4,
             "viewCenter": {
-                "x": 239.9460188933874,
-                "y": 160.05398110661272
+                "x": 239.94601889338736,
+                "y": 159.51417004048585
             }
         },
         "tiles/cheese_room/cheese_room.tsx": {
             "dynamicWrapping": true,
             "scaleInDock": 1,
-            "scaleInEditor": 1
+            "scaleInEditor": 1.5
         },
         "tiles/europe/europe.tmx": {
-            "scale": 1.8524999999999998,
-            "selectedLayer": 1,
+            "scale": 0.33,
+            "selectedLayer": 0,
             "viewCenter": {
-                "x": 239.9460188933874,
-                "y": 160.05398110661272
+                "x": 2445.454545454545,
+                "y": 2789.393939393939
             }
         },
         "tiles/europe/europe.tsx": {
@@ -73,24 +90,23 @@
             "scaleInEditor": 16
         }
     },
-    "last.imagePath": "C:/Users/rafia/Documents/Programming/cheese-game/assets/tileset/cheese_room/tiles",
+    "last.imagePath": "C:/Users/rafia/Documents/Programming/cheese-game/assets/tiles/europe",
     "map.fixedSize": true,
     "map.lastUsedFormat": "tmx",
     "map.renderOrder": null,
     "map.tileHeight": 16,
     "map.tileWidth": 16,
     "openFiles": [
-        "tiles/cheese_room/cheese_room.tmx",
-        "tiles/cheese_room/cheese_room.tsx",
         "tiles/europe/europe.tmx",
         "tiles/europe/europe.tsx"
     ],
     "project": "cheese.tiled-project",
     "recentFiles": [
-        "tiles/cheese_room/cheese_room.tmx",
-        "tiles/cheese_room/cheese_room.tsx",
         "tiles/europe/europe.tsx",
         "tiles/europe/europe.tmx",
+        "tiles/cheese_room/cheese_room.tmx",
+        "tiles/cheese_room/cheese_room.tsx",
+        "C:/Program Files (x86)/Steam/steamapps/common/Stardew Valley/Content (unpacked)/Maps/AbandonedJojaMart.tmx",
         "tileset/area1/area1.tsx",
         "tilemap/area1.tmx",
         "tilemap/cheese_room.tmx",

@@ -1,7 +1,9 @@
-from math import sqrt#, cos, sin, pi
+from math import sqrt
 from pyglet import resource, sprite, clock, graphics
-from random import randint, random, shuffle
+from random import randint, random, shuffle, choice
 from json import load
+from os import fsdecode, fsencode, listdir
+from pathlib import Path
 
 from logger import log
 
@@ -17,6 +19,7 @@ class NPC_Manager:
 
         self.initialise_children()
         self.initialise_cows()
+        self.initialise_npcs()
     
     def initialise_children(self) -> None:
         x_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -44,6 +47,17 @@ class NPC_Manager:
 
         self.npc_list.append(self.cow)
     
+    def initialise_npcs(self) -> None:
+        directory = fsencode(f"assets/npc_info/{self.player.current_tilemap}/")
+
+        npcs = []
+
+        for file in listdir(directory):
+            npcs.append(f"{self.player.current_tilemap}/{Path(fsdecode(file)).stem}")
+        
+        for npc in npcs:
+            self.npc_list.append(NPC(npc, 1.0, (self.screen_width, self.screen_height), self.batch, self.tilemap))
+    
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
@@ -58,14 +72,99 @@ class NPC_Manager:
             npc.update(self.child_flock, player_pos)
 
     def set_tilemap(self, name) -> None:
-        #with open(f"assets/npc_info/{name}.json") as file:
-        #    data = load(file)
         self.cow = None
         for npc in self.npc_list:
             npc.batch = None
             del npc
         self.npc_list = []
         self.batch = graphics.Batch()
+
+
+class NPC:
+    def __init__(self, id: str, speed: float, screen_size, batch, tilemap) -> None:
+        self.id = id
+        self.speed = speed
+        self.screen_width, self.screen_height = screen_size
+        self.batch = batch
+        self.tilemap = tilemap
+
+        with open(f"assets/npc_info/{self.id}.json") as file:
+            self.npc_info = load(file)
+
+        self.position = [*self.npc_info['locations'][0]]
+
+        self.image = resource.image(f'assets/sprites/npc/{self.id}.png', atlas=True)
+        self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=self.batch)
+
+        clock.schedule_once(self.random_movement, randint(1, 5))
+    
+    def random_movement(self, _) -> None:
+        target_location = choice(self.npc_info['locations'])
+
+        while target_location == self.position:
+            target_location = choice(self.npc_info['locations'])
+        
+        start = AStarNode(tuple(self.position), 0, 0)
+        goal = AStarNode(tuple(target_location), 0, 0)
+
+        astar = AStar(self.tilemap.tilemap[1])
+        path = astar.search(start, goal)
+        
+        path_positions = []
+        for tile in path:
+            path_positions.append(tile.pos)
+        
+        log(path_positions)
+
+        clock.schedule_interval(self.move, 1/60, path_positions, target_location)
+
+    
+    def update(self, _, player_pos) -> None:
+        x, y = player_pos
+
+        self.sprite.x = self.position[0] * 16 + self.screen_width // 2 - x * 16
+        self.sprite.y = self.position[1] * 16 + self.screen_height // 2 - y * 16
+
+    def move(self, dt, path, target) -> None:
+        if self.position == target:
+            clock.unschedule(self.move)
+            clock.schedule_once(self.random_movement, randint(5, 10))
+            return
+        
+        if path[0] == self.position:
+            path.pop(0)
+        
+        distance = self.speed * dt
+
+        vector_to_next_tile = self.position[0] - path[0][0], self.position[1] - path[0][1]
+        distance_to_next_tile = abs(vector_to_next_tile[0] or vector_to_next_tile[1])
+
+        if distance_to_next_tile < distance:
+            self.position[0] = path[0][0]
+            self.position[1] = path[0][1]
+
+            distance -= distance_to_next_tile
+
+            if len(path) > 1:
+                path.pop(0)
+
+                vector_to_next_tile = self.position[0] - path[0][0], self.position[1] - path[0][1]
+                distance_to_next_tile = abs(vector_to_next_tile[0] or vector_to_next_tile[1])
+            else:
+                clock.unschedule(self.move)
+                clock.schedule_once(self.random_movement, randint(5, 10))
+                return
+
+        if vector_to_next_tile[0] > 0:
+            self.position[0] -= distance
+        elif vector_to_next_tile[0] < 0:
+            self.position[0] += distance
+
+        if vector_to_next_tile[1] > 0:
+            self.position[1] -= distance
+        elif vector_to_next_tile[1] < 0:
+            self.position[1] += distance
+
 
 
 class Cow:
@@ -83,8 +182,6 @@ class Cow:
         clock.schedule_once(self.random_movement, randint(1, 5))
     
     def random_movement(self, _) -> None:
-        #self.set_direction(random() * 2 * pi)
-
         clock.schedule_interval_for_duration(self.move, 1/60, randint(1, 5), direction=randint(0, 3))
 
         clock.schedule_once(self.random_movement, randint(5, 15))
@@ -101,9 +198,6 @@ class Cow:
 
         self.sprite.x = self.position[0] * 16 + self.screen_width // 2 - x * 16
         self.sprite.y = self.position[1] * 16 + self.screen_height // 2 - y * 16
-
-    #def set_direction(self, direction) -> None:
-    #    self.velocity = [cos(direction), sin(direction)]
 
     def move(self, dt, direction) -> None:
         if not self.tilemap.test_collisions(self.position, direction):
@@ -273,4 +367,91 @@ class Child:
 
         return steering
 
+
+
+class AStar:
+    def __init__(self, map_grid):
+        self.open = []
+        self.closed = []
+        self.map_grid = map_grid
     
+    def search(self, start_node, goal_node):
+        self.open.append(start_node)
+
+        while self.open:
+            self.open.sort()
+            current_node = self.open[0]
+            self.open.clear()
+
+            self.closed.append(current_node)
+
+            if current_node.pos == goal_node.pos:
+                return self.reconstruct_path(current_node, start_node)
+
+            neighbours = self.get_neighbours(current_node)
+
+            for neighbour in neighbours:
+                if neighbour in self.closed:
+                    continue
+
+                g_cost = current_node.g_cost + 1
+                h_cost = self.heuristic(neighbour, goal_node)
+                f_cost = g_cost + h_cost
+
+                if neighbour in self.open:
+                    if neighbour.f_cost > f_cost:
+                        self.update_node(neighbour, g_cost, h_cost, current_node)
+                else:
+                    self.update_node(neighbour, g_cost, h_cost, current_node)
+                    self.open.append(neighbour)
+            
+        return None
+
+    def get_neighbours(self, node):
+        dirs = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+        neighbours = []
+
+        for dir in dirs:
+            neighbour_pos = (int(node.pos[0] + dir[0]), int(node.pos[1] + dir[1]))
+            log(neighbour_pos)
+
+            if (0 <= neighbour_pos[0] < self.map_grid.shape[0] and 0 <= neighbour_pos[1] < self.map_grid.shape[1]):
+                if self.map_grid[neighbour_pos] == 0:
+                    neighbours.append(AStarNode(neighbour_pos, 0, 0))
+
+        return neighbours
+    
+    def heuristic(self, node, goal):
+        d = (node.pos[0] - goal.pos[0]) ** 2 + (node.pos[1] - goal.pos[1]) ** 2
+        return d
+    
+    def reconstruct_path(self, goal_node, start_node):
+        path = [goal_node]
+        current = goal_node
+
+        while current.parent != start_node:
+            path.append(current.parent)
+            current = current.parent
+
+        return path[::-1]
+
+    def update_node(self, node, g_cost, h_cost, current_node):
+        node.g_cost = g_cost
+        node.h_cost = h_cost
+        node.f_cost = g_cost + h_cost
+        node.parent = current_node
+
+class AStarNode:
+    def __init__(self, pos: tuple, g_cost: float, h_cost: float):
+        self.pos = pos
+        self.g_cost = g_cost
+        self.h_cost = h_cost
+        self.f_cost = self.g_cost + self.h_cost
+
+        self.parent = None
+    
+    def output_info(self):
+        log(f"Node: {self.pos}, g_cost: {self.g_cost}, h_cost: {self.h_cost}, f_cost: {self.f_cost}, parent: {self.parent.pos if self.parent else None}")
+    
+    def __lt__(self, other):
+        return self.f_cost < other.f_cost

@@ -1,6 +1,7 @@
 from pyglet import shapes, graphics, text, font, resource, sprite, gui
 
 from logger import log
+from cursor import *
 
 class Hud:
     def __init__(self, screen_size, player,window) -> None:
@@ -85,23 +86,24 @@ class Hud:
         
         pressed = resource.image("assets/sprites/item/1.png")
         unpressed = resource.image("assets/sprites/hud/close.bmp")
-        close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, depressed=unpressed, batch=self.popupbatch)
+        close_btn = gui.PushButton(x=x+w-16, y=y+h-16,pressed=pressed, unpressed=unpressed, batch=self.popupbatch)
         self.window.push_handlers(close_btn)
         
-        
-        def on_press() -> None:
+        def on_press(_) -> None:
             self.close_popup()
+
         close_btn.set_handler('on_press', on_press)
         self.popup_components.extend([border0, border1, border2, border3, corner0, corner1, corner2, corner3, widnow, close_btn])
 
         self.popup = self.popupbatch
         
     def getpopupbatch(self):
-        return self.popupbatch,self.popup_components
+        return self.popupbatch, self.popup_components
+    
     def close_popup(self) -> None:
         self.popup_components.clear()
         self.popup = None
-        self.window.set_mouse_cursor (self.window.get_system_mouse_cursor(self.window.CURSOR_CROSSHAIR))
+        
     
     
 
