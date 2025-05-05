@@ -1,9 +1,15 @@
 import pyglet
 import math
 
+from pyglet.graphics.shader import _introspect_uniforms
+from pyglet.window.key import C
+#ai is fucking stupid bitch i hate it so fucking much and jit doesn't unterstant a fucking code it tired to import C
+
 import item
 import cursor
 
+from item import Item
+from cheeses import Cheeses
 from player import Player
 from tiles import Tilemap
 from logger import log
@@ -13,15 +19,19 @@ from minigame import Minigame
 from lang import Lang
 
 class Game:
+    #draining fix. explained in the segment
     SIZE = 640, 480
-    zoom = 1.0
+    zoom = 1.0 
     totalzoom = 1.0
     milk = False
+    colourexists=False
+    drainrotation=0.0
     dragintensity = 0
     x1 = 0
     rectangle = pyglet.shapes.Rectangle(1,1,1,1,(0,0,0,0))
     y1 = 0
     minigameopen = False
+    
 
     def __init__(self) -> None:
         pyglet.app.run()
@@ -55,11 +65,31 @@ def on_draw():
 
     if hud.inventory_open:
         hud.inventory_batch.draw()
-
+        
+    if minigame.instruction == "create-popup":
+        minigame.kneadmininit=False
+        minigame.milkingmininit=False
+        hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,(Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,128,player)
+        minigame.minigameselector(hud,cheeses)
+        Game.minigameopen=True
+        minigame.instruction = ""
     if hud.popup is not None:
         hud.popup.draw()
-
-
+        if hasattr(minigame,"nailsprite"):
+            minigame.nailsprite.draw()
+            
+    else:
+        Game.minigameopen=False
+        minigame.kneadmininit=False
+        minigame.milkingmininit=False
+        minigame.popup_components.clear()
+        minigame.kneadingcheese=None
+        minigame.kneadingbtn=None
+        minigame.drainingbtn=None
+        minigame.hotbtn=None
+        minigame.finishbtn=None
+    minigame.secssincehot=minigame.secssincehot+1/60
+    
 
 def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
@@ -69,39 +99,114 @@ def zoom(recip: bool=False) -> None:
     minigame.set_screen_size(z)
     hud.set_screen_size(z)
     npcs.set_screen_size(z)
-
-    hud.close_popup()
+    hud.close_popup(player)
     hud.close_inventory()
 
     if hud.inventory_open:
         hud.close_inventory()
+    if hud.popup is not None:
+        hud.close_popup(player)
 
 @window.event
-def on_mouse_drag(x: float, y: float, dx:float, dy:float, buttons, modifiers):
-    if buttons & pyglet.window.mouse.LEFT and Game.minigameopen:
+def on_mouse_scroll(x,y,scroll_x,scroll_y):
+    if  minigame.kneadmininit and Game.minigameopen and minigame.hot:
+        if minigame.secssincehot>8.5:
+            minigame.hot=False
+        minigame.totalscroll=minigame.totalscroll+scroll_y*10
+        if 1+minigame.totalscroll/300<minigame.lowest:
+            minigame.lowest=1+minigame.totalscroll/300
+        if 1+minigame.totalscroll/300>minigame.highest:
+            minigame.highest=1+minigame.totalscroll/300
+        if minigame.totalscroll>=-120 and minigame.totalscroll<400:
+            minigame.kneadingcheese.update(scale_x=1+minigame.totalscroll/300, scale_y=(1/(1+minigame.totalscroll/300)),x=(Game.SIZE[0]/2-128*(1+minigame.totalscroll/300))*Game.totalzoom,y=(Game.SIZE[1]/2-64/(1+minigame.totalscroll/300))*Game.totalzoom)
+        elif minigame.totalscroll>400:
+            minigame.kneadingcheese.image=pyglet.resource.image("assets/sprites/hud/minigame/curdincloth.png",atlas=True)
+            print("cheese was broken :(")
+            minigame.totalscroll=0
+            minigame.kneadmininit=False
+            minigame.highest=1.1
+            minigame.kneadval=(minigame.highest-minigame.lowest)/1.7333
+        
+            minigame.kneadingcheese.update(scale_x=1,scale_y=1,x=minigame.corner1[0],y=minigame.corner1[1])
+        elif minigame.totalscroll< -120 and minigame.hot:
+            minigame.totalscroll=-115
+            if minigame.secssincehot>8.5:
+                minigame.hot=False
+    elif not minigame.hot and minigame.kneadmininit: 
+        
+        minigame.kneadval=(minigame.highest-minigame.lowest)/1.7333
+        minigame.kneadmininit=False
+    
+    
+
+@window.event        
+def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+    if buttons & pyglet.window.mouse.LEFT and minigame.milkingmininit:
         if Game.milk:
             colour=(255, 163, 177)
         else:
             colour=(255,255,1)
         if Game.dragintensity == 0:
             Game.x1, Game.y1 = x, y
-
-        Game.rectangle.opacity=0
-        Game.dragintensity = Game.dragintensity + 1
-        if y-Game.y1<0:
+            Game.colourexists=minigame.fetch_colour(x, y)
+        if Game.colourexists:
+            Game.rectangle.opacity=0
+            Game.dragintensity = Game.dragintensity + 1
             
-            Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (10), (-(math.sqrt((x-Game.x1)**2+(y-Game.y1)**2))), color=colour, batch=hud.getpopupbatch()[0])
-            Game.rectangle.rotation=math.degrees(math.atan((x-Game.x1)/(y-Game.y1)))
+            if y-Game.y1<0 and Game.milk:
+                if (((x-Game.x1)**2+(y-Game.y1)**2)**0.5) >= 100:
+                    Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (8.4), (-100), color=colour, batch=hud.getpopupbatch()[0])
+                    
+                else:
+                    Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (12/(((x-Game.x1)**2+(y-Game.y1)**2)**0.5)**0.096689), -(((x-Game.x1)**2+(y-Game.y1)**2)**0.5), color=colour, batch=hud.getpopupbatch()[0])
+                    
+                Game.rectangle.rotation=math.degrees(math.atan((x-Game.x1)/(y-Game.y1)))
+                
             
-            hud.getpopupbatch()[1].append(Game.rectangle)
+                hud.getpopupbatch()[1].append(Game.rectangle)
+            elif not Game.milk :
+                pivot=[Game.SIZE[0]/2,Game.SIZE[1]/2+64]
+                if ((pivot[0]-x)**2+(pivot[1]-y)**2)**0.5/((pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2)**0.5 == 1.5 and y-Game.y1<0:
+                    scaley=1.5
+                    scalex=1/scaley
+                    
+                
+                else:
+                    scaley=((pivot[0]-x)**2+(pivot[1]-y)**2)**0.5/((pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2)**0.5
+                    scalex=1/scaley
+                
+                if scalex>=(1.5):
+                    scaley=(2/3)
+                    scalex=1/scaley
+                #i believe jiggle is undone.
+                placeholder=(pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2
+                placeholder=placeholder**0.5
+               
+                
+                asq=placeholder**2
+                bsq=(placeholder*scaley)**2
+                csq=(((Game.x1-x)**2+(Game.y1-y)**2))
+                if float(csq)>0.0 and float(bsq)>0.0 and float(asq)>0.0 and -1<((asq+bsq-csq)/2/asq**0.5/bsq**0.5)<1:
+                    print(math.degrees(math.acos((asq+bsq-csq)/2/asq**0.5/bsq**0.5)))
+                    Game.drainrotation=(math.degrees(math.acos((asq+bsq-csq)/2/asq**0.5/bsq**0.5)))
+                else:
+                    Game.drainrotation=0.0
+                if x>pivot[0]:
+                    Game.drainrotation=-Game.drainrotation
 
-
+               
+                
+                
+                
+                minigame.uddersprite.update(scale_x=scalex, scale_y=-scaley,x=(Game.SIZE[0]/2)*Game.totalzoom,y=(Game.SIZE[1]/2+64)*Game.totalzoom, rotation=Game.drainrotation)
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     if Game.dragintensity != 0:
         Game.rectangle.opacity=0
+        Game.drainrotation=0.0
         minigame.getmousepos(Game.x1, Game.y1, Game.dragintensity,hud)
-        
+        minigame.uddersprite.update(scale_x=1, scale_y=-1,x=((Game.SIZE[0]/2)*Game.totalzoom),y=(Game.SIZE[1]/2+64) *Game.totalzoom,rotation=Game.drainrotation)
+        minigame.totaldrag=minigame.totaldrag+Game.dragintensity
         Game.dragintensity = 0
         
 
@@ -152,24 +257,27 @@ def on_key_press(symbol, modifiers) -> None:
         Game.milk=False
         hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
              (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,
-             128)
-        minigame.milkingmini("drain")
+             128,player)
+        minigame.minigameselector(hud,cheeses)
         Game.minigameopen=True
+    
     elif symbol == pyglet.window.key.M:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()
 
-        if playerpos==cowpos or (playerpos[0]<cowpos[0]+32 and playerpos[0]>cowpos[0]-32 and playerpos[1]<cowpos[1]+32 and playerpos[1]>cowpos[1]-32):
+        if (playerpos[0]<=cowpos[0]+2 and playerpos[0]>=cowpos[0]-2 and playerpos[1]<=cowpos[1]+2 and playerpos[1]>=cowpos[1]-2):
             if Game.milk:
-                hud.close_popup()
+                
+                hud.close_popup(player)
             else:
                 hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
                              (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,
-                             128)
+                             128,player)
                 minigame.milkingmini("real")
 
                 cursor.set_cursor(window, cursor.HAND)
-            Game.minigameopen = not Game.minigameopen
+                Game.minigameopen=True
+            
 
             Game.milk = not Game.milk
 
@@ -197,6 +305,7 @@ player.set_screen_size(1)
 
 hud = Hud(Game.SIZE, player, window)
 minigame = Minigame(hud)
+cheeses=Cheeses()
 
 npcs = NPC_Manager(Game.SIZE, player, tilemap)
 

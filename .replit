@@ -3,6 +3,7 @@ modules = ["python-3.11"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["ffmpeg-full", "fontconfig", "freetype", "gdk-pixbuf", "gtk2-x11", "libGL", "libGLU", "libpulseaudio", "openal", "unzip"]
 
 [unitTest]
 language = "python3"
