@@ -36,7 +36,6 @@ class Game:
     def __init__(self) -> None:
         pyglet.app.run()
 
-        log("Game running")
 
 lang = Lang("en-gb")
 
@@ -76,7 +75,8 @@ def on_draw():
     if hud.popup is not None:
         hud.popup.draw()
         if hasattr(minigame,"nailsprite"):
-            minigame.nailsprite.draw()
+            if minigame.nailsprite is not None:
+                minigame.nailsprite.draw()
             
     else:
         Game.minigameopen=False
@@ -84,11 +84,16 @@ def on_draw():
         minigame.milkingmininit=False
         minigame.popup_components.clear()
         minigame.kneadingcheese=None
+        minigame.uddersprite=None
         minigame.kneadingbtn=None
         minigame.drainingbtn=None
         minigame.hotbtn=None
         minigame.finishbtn=None
-    minigame.secssincehot=minigame.secssincehot+1/60
+        if hasattr(minigame,"nailsprite"):
+            minigame.nailsprite=None
+    minigame.secssincehot=minigame.secssincehot+1
+    if minigame.secssincehot>90:
+        minigame.hot=False
     
 
 def zoom(recip: bool=False) -> None:
@@ -110,8 +115,6 @@ def zoom(recip: bool=False) -> None:
 @window.event
 def on_mouse_scroll(x,y,scroll_x,scroll_y):
     if  minigame.kneadmininit and Game.minigameopen and minigame.hot:
-        if minigame.secssincehot>8.5:
-            minigame.hot=False
         minigame.totalscroll=minigame.totalscroll+scroll_y*10
         if 1+minigame.totalscroll/300<minigame.lowest:
             minigame.lowest=1+minigame.totalscroll/300

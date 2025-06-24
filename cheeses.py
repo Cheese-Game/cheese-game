@@ -12,7 +12,6 @@ class Cheeses:
     def find_cheese(self,minigame):
         max_accuracy=0
         likelycheese="just milk"
-        #my code is utterly flawless but ive been thinking that the drain is a bit of a drain on milkingmini
         for cheese in self.cheeses:
             accuracy=1
             games=cheese["games"]
