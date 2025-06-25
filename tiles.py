@@ -20,11 +20,11 @@ class Tileset:
 
     def get_tiles(self) -> list[image.Texture]:
         return self.tiles
-    
+
     def parse_tileset(self) -> None:
         with open(self.filename) as tset:
             root = parse(tset).getroot()
-        
+
         for tile in root:
             if tile.tag == "grid":
                 continue
@@ -65,6 +65,9 @@ class Tilemap:
     def set_screen_size(self, zoom: float) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
+        self.has_updated_x, self.has_updated_y = False,False
+        self.parse_map()
+
 
     def parse_map(self) -> None:
         with open(self.filename) as tmap:
@@ -130,11 +133,19 @@ class Tilemap:
 
         if self.previous_player_position[0] < x:
             for layer in self.tilemap:
-                for tile in layer[min_y:max_y, min_x]:
+                for tile in layer[min_y:max_y, (min_x)]:
+                    #culls the row of tiles at the left
                     if tile == 0:
                         continue
                     tile.batch = None
+
                 for tile in layer[min_y:max_y, max_x]:
+                    #renders tiles to the right
+                    if tile == 0:
+                        continue
+                    tile.batch = self.bg_batch
+                for tile in layer[min_y:max_y, max_x-1]:
+                    #renders tiles to the right with a thicker margin 
                     if tile == 0:
                         continue
                     tile.batch = self.bg_batch
@@ -146,9 +157,15 @@ class Tilemap:
         elif self.previous_player_position[0] > x:
             for layer in self.tilemap:
                 for tile in layer[min_y:max_y, min_x]:
+                    #renders tiles to the left
                     if tile == 0:
                         continue
-                    tile.batch = self.bg_batch
+                    tile.batch= self.bg_batch
+                for tile in layer[min_y:max_y, min_x+1]:
+                    #renders tiles to the left with a wider margin
+                    if tile == 0:
+                        continue
+                    tile.batch= self.bg_batch
                 for tile in layer[min_y:max_y, max_x]:
                     if tile == 0:
                         continue
@@ -158,7 +175,7 @@ class Tilemap:
                         if tile == 0:
                             continue
                         tile.batch = self.bg_batch
-                
+
         if self.previous_player_position[1] < y:
             for layer in self.tilemap:
                 for tile in layer[min_y, min_x:max_x]:
@@ -169,11 +186,11 @@ class Tilemap:
                     if tile == 0:
                         continue
                     tile.batch = self.bg_batch
-                if y - self.previous_player_position[1] >= 0.5:
-                    for tile in layer[max_y-1, min_x:max_x]:
-                        if tile == 0:
-                            continue
-                        tile.batch = self.bg_batch
+                for tile in layer[max_y-1, min_x:max_x]:
+                    if tile == 0:
+                        continue
+                    tile.batch = self.bg_batch
+
         elif self.previous_player_position[1] > y:
             for layer in self.tilemap:
                 for tile in layer[min_y, min_x:max_x]:
@@ -184,21 +201,20 @@ class Tilemap:
                     if tile == 0:
                         continue
                     tile.batch = None
-                if self.previous_player_position[1] - y >= 0.5:
-                    for tile in layer[min_y+1, min_x:max_x]:
-                        if tile == 0:
-                            continue
-                        tile.batch = self.bg_batch
-        
+                for tile in layer[min_y+1, min_x:max_x]:
+                    if tile == 0:
+                        continue
+                    tile.batch = self.bg_batch
+
         for layer in self.tilemap:
             for j, row in enumerate(layer[min_y:max_y], min_y):
                 for k, tile in enumerate(row[min_x:max_x], min_x):
                     if tile == 0:   
                         continue
-                    
+
                     tile.x = k * 16 + self.screen_width // 2 - x * 16
                     tile.y = j * 16 + self.screen_height // 2 - y * 16
-        
+
         self.previous_player_position = [*player_pos]
 
 
@@ -209,7 +225,7 @@ class Tilemap:
             return self.tilemap[layer][position]
         except IndexError:
             return 0
-    
+
     def test_collisions(self, pos: list, direction: int) -> bool:
         match direction:
             # moving up
@@ -223,7 +239,7 @@ class Tilemap:
             # moving down
             case 1:
                 tiles = [(round(pos[0]), floor(pos[1] - 0.5))]
-                
+
                 if pos[0] - floor(pos[0]) <= 0.25:
                     tiles.append((round(pos[0]) - 1, floor(pos[1] - 0.5)))
                 elif pos[0] - floor(pos[0]) >= 0.75:
@@ -245,10 +261,10 @@ class Tilemap:
             if self.get_tile(tile, 2) != 0:
                 return True
         return False
-    
+
     def load_new_tilemap(self, filename: str) -> None:
         self.filename = filename
-        
+
         self.tileset = None
 
         self.batch = graphics.Batch()

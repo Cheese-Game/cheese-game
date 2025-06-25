@@ -20,7 +20,7 @@ class NPC_Manager:
         self.initialise_children()
         self.initialise_cows()
         self.initialise_npcs()
-    
+
     def initialise_children(self) -> None:
         x_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
         y_positions = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
@@ -38,15 +38,15 @@ class NPC_Manager:
             self.child_flock.append(Child(x_positions[i], y_positions[i], 
                                     x_velocities[i], y_velocities[i],
                                     self.batch, (self.screen_width, self.screen_height)))
-        
+
         for child in self.child_flock:
             self.npc_list.append(child)
-    
+
     def initialise_cows(self) -> None:
         self.cow = Cow(3.0, 3.0, 1, (self.screen_width, self.screen_height), self.batch, self.tilemap)
 
         self.npc_list.append(self.cow)
-    
+
     def initialise_npcs(self) -> None:
         directory = fsencode(f"assets/npc_info/{self.player.current_tilemap}/")
 
@@ -54,17 +54,17 @@ class NPC_Manager:
 
         for file in listdir(directory):
             npcs.append(f"{self.player.current_tilemap}/{Path(fsdecode(file)).stem}")
-        
+
         for npc in npcs:
             self.npc_list.append(NPC(npc, 1.0, (self.screen_width, self.screen_height), self.batch, self.tilemap))
-    
+
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
 
         for npc in self.npc_list:
             npc.set_screen_size(zoom)
-    
+
     def draw(self, player_pos) -> None:
         self.batch.draw()
 
@@ -97,28 +97,31 @@ class NPC:
         self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=self.batch)
 
         clock.schedule_once(self.random_movement, randint(1, 5))
-    
+
     def random_movement(self, _) -> None:
         target_location = choice(self.npc_info['locations'])
 
         while target_location == self.position:
             target_location = choice(self.npc_info['locations'])
-        
+
         start = AStarNode(tuple(self.position), 0, 0)
         goal = AStarNode(tuple(target_location), 0, 0)
 
         astar = AStar(self.tilemap.tilemap[1])
         path = astar.search(start, goal)
-        
+
         path_positions = []
         for tile in path:
             path_positions.append(tile.pos)
-        
+
         log(path_positions)
 
         clock.schedule_interval(self.move, 1/60, path_positions, target_location)
 
-    
+    def set_screen_size(self, zoom) -> None:
+        self.screen_width /= zoom
+        self.screen_height /= zoom
+
     def update(self, _, player_pos) -> None:
         x, y = player_pos
 
@@ -130,10 +133,10 @@ class NPC:
             clock.unschedule(self.move)
             clock.schedule_once(self.random_movement, randint(5, 10))
             return
-        
+
         if path[0] == self.position:
             path.pop(0)
-        
+
         distance = self.speed * dt
 
         vector_to_next_tile = self.position[0] - path[0][0], self.position[1] - path[0][1]
@@ -180,7 +183,7 @@ class Cow:
         self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=self.batch)
 
         clock.schedule_once(self.random_movement, randint(1, 5))
-    
+
     def random_movement(self, _) -> None:
         clock.schedule_interval_for_duration(self.move, 1/60, randint(1, 5), direction=randint(0, 3))
 
@@ -229,7 +232,7 @@ class Child:
 
         self.image = resource.image('assets/sprites/player/front-default.png', atlas=True)
         self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=batch)
-        
+
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
         self.screen_height /= zoom
@@ -264,7 +267,7 @@ class Child:
 
         self.position[0] += self.velocity[0]
         self.position[1] += self.velocity[1]
-        
+
         self.adjust_position(player_pos)
 
     def social_anxiety(self, flock) -> list:
@@ -333,7 +336,7 @@ class Child:
             steering[1] -= self.velocity[1]
 
         return steering
-    
+
     def peer_pressure(self, flock) -> list:
         steering = [0.0, 0.0]
         total = 0
@@ -374,7 +377,7 @@ class AStar:
         self.open = []
         self.closed = []
         self.map_grid = map_grid
-    
+
     def search(self, start_node, goal_node):
         self.open.append(start_node)
 
@@ -404,7 +407,7 @@ class AStar:
                 else:
                     self.update_node(neighbour, g_cost, h_cost, current_node)
                     self.open.append(neighbour)
-            
+
         return None
 
     def get_neighbours(self, node):
@@ -420,11 +423,11 @@ class AStar:
                     neighbours.append(AStarNode(neighbour_pos, 0, 0))
 
         return neighbours
-    
+
     def heuristic(self, node, goal):
         d = (node.pos[0] - goal.pos[0]) ** 2 + (node.pos[1] - goal.pos[1]) ** 2
         return d
-    
+
     def reconstruct_path(self, goal_node, start_node):
         path = [goal_node]
         current = goal_node
@@ -449,9 +452,9 @@ class AStarNode:
         self.f_cost = self.g_cost + self.h_cost
 
         self.parent = None
-    
+
     def output_info(self):
         log(f"Node: {self.pos}, g_cost: {self.g_cost}, h_cost: {self.h_cost}, f_cost: {self.f_cost}, parent: {self.parent.pos if self.parent else None}")
-    
+
     def __lt__(self, other):
         return self.f_cost < other.f_cost

@@ -3,12 +3,12 @@ import math
 
 from pyglet.graphics.shader import _introspect_uniforms
 from pyglet.window.key import C
-#ai is fucking stupid bitch i hate it so fucking much and jit doesn't unterstant a fucking code it tired to import C
 
 import item
 import cursor
 
 from item import Item
+from sound import Music_manager
 from cheeses import Cheeses
 from player import Player
 from tiles import Tilemap
@@ -31,7 +31,7 @@ class Game:
     rectangle = pyglet.shapes.Rectangle(1,1,1,1,(0,0,0,0))
     y1 = 0
     minigameopen = False
-    
+
 
     def __init__(self) -> None:
         pyglet.app.run()
@@ -64,7 +64,7 @@ def on_draw():
 
     if hud.inventory_open:
         hud.inventory_batch.draw()
-        
+
     if minigame.instruction == "create-popup":
         minigame.kneadmininit=False
         minigame.milkingmininit=False
@@ -77,7 +77,7 @@ def on_draw():
         if hasattr(minigame,"nailsprite"):
             if minigame.nailsprite is not None:
                 minigame.nailsprite.draw()
-            
+
     else:
         Game.minigameopen=False
         minigame.kneadmininit=False
@@ -94,7 +94,7 @@ def on_draw():
     minigame.secssincehot=minigame.secssincehot+1
     if minigame.secssincehot>90:
         minigame.hot=False
-    
+
 
 def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
@@ -129,18 +129,18 @@ def on_mouse_scroll(x,y,scroll_x,scroll_y):
             minigame.kneadmininit=False
             minigame.highest=1.1
             minigame.kneadval=(minigame.highest-minigame.lowest)/1.7333
-        
+
             minigame.kneadingcheese.update(scale_x=1,scale_y=1,x=minigame.corner1[0],y=minigame.corner1[1])
         elif minigame.totalscroll< -120 and minigame.hot:
             minigame.totalscroll=-115
             if minigame.secssincehot>8.5:
                 minigame.hot=False
     elif not minigame.hot and minigame.kneadmininit: 
-        
+
         minigame.kneadval=(minigame.highest-minigame.lowest)/1.7333
         minigame.kneadmininit=False
-    
-    
+
+
 
 @window.event        
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
@@ -155,37 +155,36 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
         if Game.colourexists:
             Game.rectangle.opacity=0
             Game.dragintensity = Game.dragintensity + 1
-            
+
             if y-Game.y1<0 and Game.milk:
                 if (((x-Game.x1)**2+(y-Game.y1)**2)**0.5) >= 100:
                     Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (8.4), (-100), color=colour, batch=hud.getpopupbatch()[0])
-                    
+
                 else:
                     Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (12/(((x-Game.x1)**2+(y-Game.y1)**2)**0.5)**0.096689), -(((x-Game.x1)**2+(y-Game.y1)**2)**0.5), color=colour, batch=hud.getpopupbatch()[0])
-                    
+
                 Game.rectangle.rotation=math.degrees(math.atan((x-Game.x1)/(y-Game.y1)))
-                
-            
+
+
                 hud.getpopupbatch()[1].append(Game.rectangle)
             elif not Game.milk :
                 pivot=[Game.SIZE[0]/2,Game.SIZE[1]/2+64]
                 if ((pivot[0]-x)**2+(pivot[1]-y)**2)**0.5/((pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2)**0.5 == 1.5 and y-Game.y1<0:
                     scaley=1.5
                     scalex=1/scaley
-                    
-                
+
+
                 else:
                     scaley=((pivot[0]-x)**2+(pivot[1]-y)**2)**0.5/((pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2)**0.5
                     scalex=1/scaley
-                
+
                 if scalex>=(1.5):
                     scaley=(2/3)
                     scalex=1/scaley
-                #i believe jiggle is undone.
                 placeholder=(pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2
                 placeholder=placeholder**0.5
-               
-                
+
+
                 asq=placeholder**2
                 bsq=(placeholder*scaley)**2
                 csq=(((Game.x1-x)**2+(Game.y1-y)**2))
@@ -197,10 +196,10 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
                 if x>pivot[0]:
                     Game.drainrotation=-Game.drainrotation
 
-               
-                
-                
-                
+
+
+
+
                 minigame.uddersprite.update(scale_x=scalex, scale_y=-scaley,x=(Game.SIZE[0]/2)*Game.totalzoom,y=(Game.SIZE[1]/2+64)*Game.totalzoom, rotation=Game.drainrotation)
 @window.event
 def on_mouse_release(x, y, button, modifiers):
@@ -211,33 +210,40 @@ def on_mouse_release(x, y, button, modifiers):
         minigame.uddersprite.update(scale_x=1, scale_y=-1,x=((Game.SIZE[0]/2)*Game.totalzoom),y=(Game.SIZE[1]/2+64) *Game.totalzoom,rotation=Game.drainrotation)
         minigame.totaldrag=minigame.totaldrag+Game.dragintensity
         Game.dragintensity = 0
-        
+
 
 
 @window.event
 def on_key_press(symbol, modifiers) -> None:
+    #normalisation? why would anyone do this
     if symbol == pyglet.window.key.W:
         pyglet.clock.schedule_interval(player.move_up, 1 / 60.0)
+        music_manager.play_sfx("step")
     elif symbol == pyglet.window.key.A:
         pyglet.clock.schedule_interval(player.move_left, 1 / 60.0)
+        music_manager.play_sfx("step")
     elif symbol == pyglet.window.key.S:
         pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
+        music_manager.play_sfx("step")
     elif symbol == pyglet.window.key.D:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
+        music_manager.play_sfx("step")
     elif (symbol == pyglet.window.key.PLUS or
           (symbol == pyglet.window.key.EQUAL and modifiers
            and pyglet.window.key.MOD_SHIFT)) and Game.totalzoom < 3.0:
-        window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
-        Game.totalzoom *= Game.zoom
+        window.view = window.view.scale((Game.zoom, Game.zoom, 1))
+        Game.totalzoom = Game.totalzoom * Game.zoom
         zoom()
     elif symbol == pyglet.window.key.MINUS and Game.totalzoom > 0.101:
         window.view = window.view.scale(
-            (1 / Game.zoom, 1 / Game.zoom, Game.zoom))
+            (1 / Game.zoom, 1 / Game.zoom, 1))
         Game.totalzoom /= Game.zoom
         zoom(recip=True)
     elif symbol == pyglet.window.key.EQUAL:
-        Game.zoom = 1.0 / Game.totalzoom
-        window.view = window.view.scale((Game.zoom, Game.zoom, Game.zoom))
+        Game.zoom = 1.0 / Game.totalzoom 
+        #reverses the zoom completely
+        log(Game.zoom)
+        window.view = window.view.scale((Game.zoom, Game.zoom, 1))
         zoom()
         Game.zoom = 2.0
         Game.totalzoom = 1.0
@@ -263,14 +269,14 @@ def on_key_press(symbol, modifiers) -> None:
              128,player)
         minigame.minigameselector(hud,cheeses)
         Game.minigameopen=True
-    
+
     elif symbol == pyglet.window.key.M:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()
 
         if (playerpos[0]<=cowpos[0]+2 and playerpos[0]>=cowpos[0]-2 and playerpos[1]<=cowpos[1]+2 and playerpos[1]>=cowpos[1]-2):
             if Game.milk:
-                
+
                 hud.close_popup(player)
             else:
                 hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
@@ -280,7 +286,7 @@ def on_key_press(symbol, modifiers) -> None:
 
                 cursor.set_cursor(window, cursor.HAND)
                 Game.minigameopen=True
-            
+
 
             Game.milk = not Game.milk
 
@@ -308,7 +314,9 @@ player.set_screen_size(1)
 
 hud = Hud(Game.SIZE, player, window)
 minigame = Minigame(hud)
+music_manager = Music_manager(Game.SIZE)
 cheeses=Cheeses()
+music_manager.update_area("europe","Europe")
 
 npcs = NPC_Manager(Game.SIZE, player, tilemap)
 
