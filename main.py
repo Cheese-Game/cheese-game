@@ -41,7 +41,7 @@ lang = Lang("en-gb")
 
 window = pyglet.window.Window(*Game.SIZE, vsync=False, caption=lang.get_string("name"))
 window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
-window.set_icon(pyglet.resource.image("assets/sprites/player/front-default.png"))
+window.set_icon(pyglet.resource.image("assets/logo.png"))
 Game.zoom = 2.0
 
 cursor.set_cursor(window, cursor.CROSSHAIR)
@@ -217,17 +217,13 @@ def on_mouse_release(x, y, button, modifiers):
 def on_key_press(symbol, modifiers) -> None:
     #normalisation? why would anyone do this
     if symbol == pyglet.window.key.W:
-        pyglet.clock.schedule_interval(player.move_up, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_up, 1 / 60.0,music_manager)
     elif symbol == pyglet.window.key.A:
-        pyglet.clock.schedule_interval(player.move_left, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_left, 1 / 60.0,music_manager)
     elif symbol == pyglet.window.key.S:
-        pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_down, 1 / 60.0,music_manager)
     elif symbol == pyglet.window.key.D:
-        pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_right, 1 / 60.0,music_manager)
     elif (symbol == pyglet.window.key.PLUS or
           (symbol == pyglet.window.key.EQUAL and modifiers
            and pyglet.window.key.MOD_SHIFT)) and Game.totalzoom < 3.0:
@@ -269,11 +265,14 @@ def on_key_press(symbol, modifiers) -> None:
              128,player)
         minigame.minigameselector(hud,cheeses)
         Game.minigameopen=True
-
+    elif symbol ==pyglet.window.key.Q:
+        music_manager.get_playing()
     elif symbol == pyglet.window.key.M:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()
-
+        #detects if cow is nearby for milking. (code hached below is code for cow.)
+        #distance=math.sqrt((player.get_pos()[0]-npcs.cow.get_pos()[0])**2+(player.get_pos()[1]-npcs.cow.get_pos()[1])**2)
+        #music_manager.distance_sfx("moo",distance)
         if (playerpos[0]<=cowpos[0]+2 and playerpos[0]>=cowpos[0]-2 and playerpos[1]<=cowpos[1]+2 and playerpos[1]>=cowpos[1]-2):
             if Game.milk:
 
@@ -295,12 +294,16 @@ def on_key_press(symbol, modifiers) -> None:
 def on_key_release(symbol, _) -> None:
     if symbol == pyglet.window.key.W:
         pyglet.clock.unschedule(player.move_up)
+        music_manager.cancel_sfx()
     elif symbol == pyglet.window.key.A:
         pyglet.clock.unschedule(player.move_left)
+        music_manager.cancel_sfx()
     elif symbol == pyglet.window.key.S:
         pyglet.clock.unschedule(player.move_down)
+        music_manager.cancel_sfx()
     elif symbol == pyglet.window.key.D:
         pyglet.clock.unschedule(player.move_right)
+        music_manager.cancel_sfx()
 
 
 fps_display = pyglet.window.FPSDisplay(window=window)
@@ -316,7 +319,7 @@ hud = Hud(Game.SIZE, player, window)
 minigame = Minigame(hud)
 music_manager = Music_manager(Game.SIZE)
 cheeses=Cheeses()
-music_manager.update_area("europe","Europe")
+music_manager.update_area("europe","europe")
 
 npcs = NPC_Manager(Game.SIZE, player, tilemap)
 
