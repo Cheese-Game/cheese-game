@@ -1,5 +1,4 @@
 import pyglet
-import time
 
 
 class Music_manager:
