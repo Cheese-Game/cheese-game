@@ -32,28 +32,32 @@ class Player:
     def reset_pos(self) -> None:
         self.position = [0.0, 0.0]
 
-    def move_up(self, dt) -> None:
+    def move_up(self, dt,music_manager) -> None:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 0):
                 self.position[1] += int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_back_default
-        
-    def move_down(self, dt) -> None:
+
+    def move_down(self, dt,music_manager) -> None:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 1):
                 self.position[1] -= int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_front_default
 
-    def move_left(self, dt) -> None:
+    def move_left(self, dt,music_manager) -> None:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 2):
                 self.position[0] -= int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_left_default
 
-    def move_right(self, dt) -> None:
+    def move_right(self, dt,music_manager) -> None:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 3):
                 self.position[0] += int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_right_default
 
     def draw(self) -> None:
