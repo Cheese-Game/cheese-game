@@ -19,7 +19,6 @@ from minigame import Minigame
 from lang import Lang
 
 class Game:
-    #draining fix. explained in the segment
     SIZE = 640, 480
     zoom = 1.0 
     totalzoom = 1.0
@@ -167,6 +166,7 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
 
 
                 hud.getpopupbatch()[1].append(Game.rectangle)
+                minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64)  )
             elif not Game.milk :
                 pivot=[Game.SIZE[0]/2,Game.SIZE[1]/2+64]
                 if ((pivot[0]-x)**2+(pivot[1]-y)**2)**0.5/((pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2)**0.5 == 1.5 and y-Game.y1<0:
@@ -195,11 +195,6 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
                     Game.drainrotation=0.0
                 if x>pivot[0]:
                     Game.drainrotation=-Game.drainrotation
-
-
-
-
-
                 minigame.uddersprite.update(scale_x=scalex, scale_y=-scaley,x=(Game.SIZE[0]/2)*Game.totalzoom,y=(Game.SIZE[1]/2+64)*Game.totalzoom, rotation=Game.drainrotation)
 @window.event
 def on_mouse_release(x, y, button, modifiers):
@@ -207,7 +202,10 @@ def on_mouse_release(x, y, button, modifiers):
         Game.rectangle.opacity=0
         Game.drainrotation=0.0
         minigame.getmousepos(Game.x1, Game.y1, Game.dragintensity,hud)
-        minigame.uddersprite.update(scale_x=1, scale_y=-1,x=((Game.SIZE[0]/2)*Game.totalzoom),y=(Game.SIZE[1]/2+64) *Game.totalzoom,rotation=Game.drainrotation)
+        if not Game.milk:
+            minigame.uddersprite.update(scale_x=1, scale_y=-1,x=((Game.SIZE[0]/2)*Game.totalzoom),y=(Game.SIZE[1]/2+64) *Game.totalzoom,rotation=Game.drainrotation)
+        else:
+            minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64)  )
         minigame.totaldrag=minigame.totaldrag+Game.dragintensity
         Game.dragintensity = 0
 
@@ -269,8 +267,8 @@ def on_key_press(symbol, modifiers) -> None:
         music_manager.get_playing()
     elif symbol == pyglet.window.key.M:
         playerpos = player.get_pos()
-        cowpos = npcs.cow.get_pos()
-        #detects if cow is nearby for milking. (code hached below is code for cow.)
+        cowpos = npcs.cow.get_pos()  
+        #detects if cow is nearby for milking. (code hached below is code for cow moo.)
         #distance=math.sqrt((player.get_pos()[0]-npcs.cow.get_pos()[0])**2+(player.get_pos()[1]-npcs.cow.get_pos()[1])**2)
         #music_manager.distance_sfx("moo",distance)
         if (playerpos[0]<=cowpos[0]+2 and playerpos[0]>=cowpos[0]-2 and playerpos[1]<=cowpos[1]+2 and playerpos[1]>=cowpos[1]-2):

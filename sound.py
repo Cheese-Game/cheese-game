@@ -14,7 +14,7 @@ class Music_manager:
     def update_area(self, world, area) -> None:
         self.cancel_music()
         self.player = pyglet.media.Player()
-        self.player.volume=0.05*self.master_volume
+        self.player.volume=0.1*self.master_volume
         print("assets/music/" + str(world) + "/" + str(area) + ".mp3")
         track = pyglet.media.load("assets/music/" + str(world) + "/" +
                                   str(area) + ".mp3",
