@@ -1,7 +1,8 @@
 from collections.abc import Mapping
-from pyglet import sprite, resource, gui
+from pyglet import sprite, resource, gui,clock
 import time
 
+from logger import log
 
 class Minigame:
 
@@ -22,8 +23,14 @@ class Minigame:
         self.popup_components = hud.popup_components
         self.corner1 = self.screen_width / 2 - 128, self.screen_height / 2 - 64
         self.milkingmininit = False
-        self.starttime = time.time()
-
+        
+    def update(self,dt):
+        if self.secssincehot>=30:
+            self.hot=False
+        else:
+            self.secssincehot=self.secssincehot +1
+            #clock.schedule_interval(self.update, 1)
+       
     def fetch_colour(self, x, y):
         x = int(x - self.corner1[0])
         y = int(y - self.corner1[1])
@@ -173,6 +180,7 @@ class Minigame:
             killself(self, hud)
             self.hot = True
             self.minigameselector(hud, item)
+            clock.schedule_interval(self.update, 1)
             self.secssincehot = 0.0
 
         def on_pressdrainbtn(_):

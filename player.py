@@ -12,6 +12,7 @@ class Player:
         self.sprites = PlayerSprites(sprite_path, screen_size)
         self.sprite = self.sprites.sprite_front_default
         self.inventory = []
+        self.count=0.0
         self.current_item = None
         self.can_move = True
         self.current_area = "europe"
@@ -33,6 +34,7 @@ class Player:
         self.position = [0.0, 0.0]
 
     def move_up(self, dt,music_manager) -> None:
+        print(self.count)
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 0):
                 self.position[1] += int(Player.SPEED * dt * 4) / 4

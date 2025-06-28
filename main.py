@@ -90,10 +90,7 @@ def on_draw():
         minigame.finishbtn=None
         if hasattr(minigame,"nailsprite"):
             minigame.nailsprite=None
-    minigame.secssincehot=minigame.secssincehot+1
-    if minigame.secssincehot>90:
-        minigame.hot=False
-
+    
 
 def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
@@ -132,8 +129,7 @@ def on_mouse_scroll(x,y,scroll_x,scroll_y):
             minigame.kneadingcheese.update(scale_x=1,scale_y=1,x=minigame.corner1[0],y=minigame.corner1[1])
         elif minigame.totalscroll< -120 and minigame.hot:
             minigame.totalscroll=-115
-            if minigame.secssincehot>8.5:
-                minigame.hot=False
+            
     elif not minigame.hot and minigame.kneadmininit: 
 
         minigame.kneadval=(minigame.highest-minigame.lowest)/1.7333
