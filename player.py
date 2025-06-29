@@ -34,7 +34,6 @@ class Player:
         self.position = [0.0, 0.0]
 
     def move_up(self, dt,music_manager) -> None:
-        print(self.count)
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 0):
                 self.position[1] += int(Player.SPEED * dt * 4) / 4

@@ -82,6 +82,7 @@ class Tilemap:
         self.tileset.parse_tileset()
 
         tile_list: list[image.Texture] = self.tileset.get_tiles()
+        #makes a list of the textures for the tiles
 
         self.tilemap = []
 
@@ -94,13 +95,16 @@ class Tilemap:
             offset = 0
 
             layer_map = zeros((self.tilemap_size[0], self.tilemap_size[1]), dtype=object)
+            #creates an array of zeroes the size of the tilemap
 
             for y, row in enumerate(data.split('\n')[1:-1]):
                 tiles = row.split(',')[:-1]
+                #splits the tilemap into individual tiles for each row
 
                 for x, tile in enumerate(tiles):
                     if tile == "0":
                         continue
+                    #ignores the tileless
 
                     tile_id = int(tile) - 1 + offset
 
@@ -109,6 +113,7 @@ class Tilemap:
                         try:
                             tile_sprite = Tile(
                                 img=tile_list[tile_id],
+                                #converts tilepos to realpos
                                 x=x * 16 + self.screen_width // 2 - x * 16, 
                                 y=y * 16 + self.screen_height // 2 - y * 16,
                                 batch=self.bg_batch if i < 3 else self.fg_batch)
@@ -120,7 +125,16 @@ class Tilemap:
                             break
 
             self.tilemap.append(layer_map)
-
+    def find_tile(self, position:tuple,layer:int):
+        x=position[0]
+        y=position[1]
+        print(position)
+        x=x * 16 
+        y=y * 16 
+        position=[x,y]
+        print(position)
+        #return self.tilemap[layer][position]
+        return self.tilemap[layer][x,y]
     def adjust_position(self, player_pos: list[float]) -> None:
         x, y = player_pos[0], player_pos[1]
 
@@ -225,13 +239,14 @@ class Tilemap:
             return self.tilemap[layer][position]
         except IndexError:
             return 0
+        #tile marked 18 is water, this function is poorly labelled and aqa would be ashamed.
 
     def test_collisions(self, pos: list, direction: int) -> bool:
+        
         match direction:
             # moving up
             case 0: 
                 tiles = [(round(pos[0]), ceil(pos[1]))]
-
                 if pos[0] - floor(pos[0]) <= 0.25:
                     tiles.append((round(pos[0]) - 1, ceil(pos[1])))
                 elif pos[0] - floor(pos[0]) >= 0.75:

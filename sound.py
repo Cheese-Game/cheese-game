@@ -42,6 +42,8 @@ class Music_manager:
             self.sfx_player.queue(effect)
     def distance_sfx(self,sfx,distance) -> None:
         self.dsfx_player=pyglet.media.Player()
+        if distance==0:
+            distance=0.000000001
         self.dsfx_player.volume=0.8/float(distance)*self.master_volume
         effect=pyglet.media.load("assets/sfx/" + str(sfx) + ".mp3")
         self.dsfx_player.queue(effect)

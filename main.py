@@ -7,6 +7,7 @@ from pyglet.window.key import C
 import item
 import cursor
 
+from random import randint
 from item import Item
 from sound import Music_manager
 from cheeses import Cheeses
@@ -34,6 +35,14 @@ class Game:
 
     def __init__(self) -> None:
         pyglet.app.run()
+    
+    def moo(self)-> None:
+        distance=math.sqrt((player.get_pos()[0]-npcs.cow.get_pos()[0])**2+(player.get_pos()[1]-npcs.cow.get_pos()[1])**2)
+        music_manager.distance_sfx("moo",distance)
+        pyglet.clock.schedule_once(Game.moo,randint(5,10))
+
+        
+
 
 
 lang = Lang("en-gb")
@@ -44,6 +53,7 @@ window.set_icon(pyglet.resource.image("assets/logo.png"))
 Game.zoom = 2.0
 
 cursor.set_cursor(window, cursor.CROSSHAIR)
+
 
 
 @window.event
@@ -185,7 +195,6 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
                 bsq=(placeholder*scaley)**2
                 csq=(((Game.x1-x)**2+(Game.y1-y)**2))
                 if float(csq)>0.0 and float(bsq)>0.0 and float(asq)>0.0 and -1<((asq+bsq-csq)/2/asq**0.5/bsq**0.5)<1:
-                    print(math.degrees(math.acos((asq+bsq-csq)/2/asq**0.5/bsq**0.5)))
                     Game.drainrotation=(math.degrees(math.acos((asq+bsq-csq)/2/asq**0.5/bsq**0.5)))
                 else:
                     Game.drainrotation=0.0
@@ -231,8 +240,7 @@ def on_key_press(symbol, modifiers) -> None:
         zoom(recip=True)
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom 
-        #reverses the zoom completely
-        log(Game.zoom)
+        #reverses the zoom completely in order to scale back
         window.view = window.view.scale((Game.zoom, Game.zoom, 1))
         zoom()
         Game.zoom = 2.0
@@ -243,6 +251,7 @@ def on_key_press(symbol, modifiers) -> None:
         if tilemap.filename == "assets/tiles/cheese_room/cheese_room.tmx":
             tilemap.load_new_tilemap(f"assets/tiles/{player.current_area}/{player.current_area}.tmx")
             player.current_tilemap = player.current_area
+            # I love that this button turns cheese game into empty room simulator 2025
         else:
             tilemap.load_new_tilemap("assets/tiles/cheese_room/cheese_room.tmx")
             player.current_tilemap = "cheese_room"
@@ -264,9 +273,9 @@ def on_key_press(symbol, modifiers) -> None:
     elif symbol == pyglet.window.key.M:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()  
+        print(tilemap.find_tile(playerpos,2))
         #detects if cow is nearby for milking. (code hached below is code for cow moo.)
-        #distance=math.sqrt((player.get_pos()[0]-npcs.cow.get_pos()[0])**2+(player.get_pos()[1]-npcs.cow.get_pos()[1])**2)
-        #music_manager.distance_sfx("moo",distance)
+        
         if (playerpos[0]<=cowpos[0]+2 and playerpos[0]>=cowpos[0]-2 and playerpos[1]<=cowpos[1]+2 and playerpos[1]>=cowpos[1]-2):
             if Game.milk:
 
@@ -316,5 +325,6 @@ cheeses=Cheeses()
 music_manager.update_area("europe","europe")
 
 npcs = NPC_Manager(Game.SIZE, player, tilemap)
+pyglet.clock.schedule_once(Game.moo,randint(5,10))
 
 game = Game()

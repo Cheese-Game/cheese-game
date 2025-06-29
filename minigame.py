@@ -7,13 +7,13 @@ from logger import log
 class Minigame:
 
     def __init__(self, hud) -> None:
-        #how does my own code work? I only partially know.
+        #how does my own code work? I know, but my memory fails so mayhaps actually leave comments
         # i fucking hate python it is a bullshit language that only follows fucking vibes over whether it should work
         self.hot = False
         self.kneadval = 0.0
         self.dragintensity = 0
         self.totaldrag = 0
-        #to do: ingredients, maybe separate draining but you could separate that at the drag calling in main, back button still unfunctioning
+        #to do: look at 2do list, you dumbass. if you have no clue what i'm talking about, make colision actually work!!
         self.games_used = []
         self.screen_width, self.screen_height = hud.screen_width, hud.screen_height
         self.secssincehot = 0.0
@@ -29,7 +29,7 @@ class Minigame:
             self.hot=False
         else:
             self.secssincehot=self.secssincehot +1
-            #clock.schedule_interval(self.update, 1)
+            #this just keeps going (???) but ill let it whilst the program still runs bove 30
        
     def fetch_colour(self, x, y):
         x = int(x - self.corner1[0])
@@ -38,10 +38,9 @@ class Minigame:
         #b'\xff\xa3\xff' is udder-pink.
         if (imagedata.get_region(x, y, 1, 1).get_data("RGBA",
                                                       (3))) == b'\x00\x00\x00':
-            #colour=(0,0,0,0)
+            # by fetching the colour of the png, you can filter out the transparent parts of the png
             see = False
         else:
-            #colour=(1,1,1,1)
             see = True
         return see
 
@@ -62,7 +61,7 @@ class Minigame:
             self.udder = "real"
             self.udderimg = resource.image(
                 "assets/sprites/hud/minigame/udder.png", atlas=True)
-
+        #the udder var is about whether the udder is an udder or curds in a cloth
         elif udder == "drain":
             self.udder = "drain"
             self.games_used.append("drain")
@@ -75,13 +74,18 @@ class Minigame:
             self.nailsprite = sprite.Sprite(self.nailimg,
                                             x=self.corner1[0],
                                             y=self.corner1[1] + 124)
-        self.uddersprite = sprite.Sprite(self.udderimg,
+        
+        if udder == "drain":
+            self.uddersprite = sprite.Sprite(self.udderimg,
                                          x=self.corner1[0] + 128,
                                          y=self.corner1[1] + 128,
                                          batch=self.batch)
-        if udder == "drain":
             self.uddersprite.update(scale_y=-1)
-
+        else:
+            self.uddersprite = sprite.Sprite(self.udderimg,
+                                         x=self.corner1[0],
+                                         y=self.corner1[1],
+                                         batch=self.batch)
         self.popup_components.append(self.uddersprite)
 
     def getmousepos(self, x1, y1, intensity, hud):
@@ -151,8 +155,10 @@ class Minigame:
                                      unpressed=hotbtnicon,
                                      batch=self.batch)
         hud.window.push_handlers(self.hotbtn)
+        #buttons.
 
         def killself(self, hud):
+            # this purges the old screen of all of the cheese menu buttons. might replace the menu with navigation of the cheese room (hows it in there?)
             if self.hot:
                 self.popup_components.remove(self.kneadingbtn)
                 self.kneadingbtn = None
