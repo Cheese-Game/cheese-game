@@ -28,7 +28,6 @@ class Game:
     drainrotation=0.0
     dragintensity = 0
     x1 = 0
-    rectangle = pyglet.shapes.Rectangle(1,1,1,1,(0,0,0,0))
     y1 = 0
     minigameopen = False
 
