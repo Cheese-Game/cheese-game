@@ -69,6 +69,9 @@ def on_draw():
     tilemap.fg_batch.draw()
     hud.hud_batch.draw()
     fps_display.draw()
+    
+    
+    
 
     if hud.inventory_open:
         hud.inventory_batch.draw()
@@ -103,7 +106,6 @@ def on_draw():
 
 def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
-
     player.set_screen_size(z)
     tilemap.set_screen_size(z)
     minigame.set_screen_size(z)
@@ -309,6 +311,7 @@ def on_key_release(symbol, _) -> None:
 
 
 fps_display = pyglet.window.FPSDisplay(window=window)
+
 
 tilemap = Tilemap('assets/tiles/europe/europe.tmx', Game.SIZE)
 
