@@ -5,8 +5,8 @@ from pyglet.graphics.shader import _introspect_uniforms
 from pyglet.window.key import C
 
 import item
-import cursor
 
+from cursor import Cursor_Class
 from random import randint
 from item import Item
 from sound import Music_manager
@@ -51,7 +51,6 @@ window.view = window.view.scale((Game.zoom, Game.zoom, 1.0))
 window.set_icon(pyglet.resource.image("assets/logo.png"))
 Game.zoom = 2.0
 
-cursor.set_cursor(window, cursor.CROSSHAIR)
 
 
 
@@ -113,12 +112,16 @@ def zoom(recip: bool=False) -> None:
     npcs.set_screen_size(z)
     hud.close_popup(player)
     hud.close_inventory()
-
+    Cursor.change_size(1/z,window)
+    Cursor.set_cursor(window, Cursor.CROSSHAIR)
     if hud.inventory_open:
         hud.close_inventory()
-    if hud.popup is not None:
-        hud.close_popup(player)
-
+@window.event
+def on_mouse_motion(x,y,dx,dy):
+    if Game.totalzoom !=1:
+        #the best idea i have is to entirely replace the mouse with a new system, but it could be performance intensive
+        print("dx must be fixed")
+        #don't forget to test that the minigames still work fine and to adjust variables. 
 @window.event
 def on_mouse_scroll(x,y,scroll_x,scroll_y):
     if  minigame.kneadmininit and Game.minigameopen and minigame.hot:
@@ -241,9 +244,20 @@ def on_key_press(symbol, modifiers) -> None:
         zoom(recip=True)
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom 
-        #reverses the zoom completely in order to scale back
+        #raffers completely fucked this up. i fixed it. next time, please stop modifying things without testing that the features actually work.aw
         window.view = window.view.scale((Game.zoom, Game.zoom, 1))
-        zoom()
+        z = Game.zoom
+        player.set_screen_size(z)
+        tilemap.set_screen_size(z)
+        minigame.set_screen_size(z)
+        hud.set_screen_size(z)
+        npcs.set_screen_size(z)
+        hud.close_popup(player)
+        hud.close_inventory()
+        Cursor.change_size(1/z,window)
+        Cursor.set_cursor(window, Cursor.CROSSHAIR)
+        if hud.inventory_open:
+            hud.close_inventory()
         Game.zoom = 2.0
         Game.totalzoom = 1.0
     elif symbol == pyglet.window.key.B:
@@ -287,7 +301,7 @@ def on_key_press(symbol, modifiers) -> None:
                              128,player)
                 minigame.milkingmini("real")
 
-                cursor.set_cursor(window, cursor.HAND)
+                Cursor.set_cursor(window, Cursor.HAND)
                 Game.minigameopen=True
 
 
@@ -319,7 +333,8 @@ player = Player('assets/sprites/player/', Game.SIZE, tilemap)
 player.give(item.MUG, 1)
 player.set_held_item(0)
 player.set_screen_size(1)
-
+Cursor = Cursor_Class(1)
+Cursor.set_cursor(window, Cursor.CROSSHAIR)
 hud = Hud(Game.SIZE, player, window)
 minigame = Minigame(hud)
 music_manager = Music_manager(Game.SIZE)
