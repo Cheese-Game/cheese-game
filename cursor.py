@@ -1,5 +1,5 @@
 from pyglet.window import ImageMouseCursor
-from pyglet import resource
+from pyglet import resource,sprite
 
 class Cursor_Class:
     CURSORS = resource.image('assets/sprites/cursor.png')
@@ -16,6 +16,7 @@ class Cursor_Class:
         pass
     def set_cursor(self,window, cursor) -> None:
         window.set_mouse_cursor(cursor)
+    
     def change_size(self,z,window) -> None:
         #the idea is that the size of the cursor should be adjusted
         self.scale=self.scale*z
@@ -28,8 +29,10 @@ class Cursor_Class:
         CROSSHAIR = ImageMouseCursor(self.crosshairimg, hot_x=8, hot_y=8,)    
         POINTER = ImageMouseCursor(self.pointerimg, hot_x=7, hot_y=16)
         HAND = ImageMouseCursor(self.handimg, hot_x=8, hot_y=8)
-        print("size changed")
-        print(self.scale)
+    def create_cursor(self,x2,y2):
+        self.sprite=sprite.Sprite(self.crosshairimg, x=x2, y=y2)
+        #needs to be based on the cursor choice, not crosshairimg
+    
         
 
 

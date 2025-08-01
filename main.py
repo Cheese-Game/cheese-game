@@ -30,6 +30,7 @@ class Game:
     x1 = 0
     y1 = 0
     minigameopen = False
+    cursor_created=False
 
 
     def __init__(self) -> None:
@@ -101,7 +102,8 @@ def on_draw():
         minigame.finishbtn=None
         if hasattr(minigame,"nailsprite"):
             minigame.nailsprite=None
-    
+    if Game.totalzoom != 1 and Game.cursor_created:
+        Cursor.sprite.draw()
 
 def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
@@ -120,10 +122,20 @@ def zoom(recip: bool=False) -> None:
 def on_mouse_motion(x,y,dx,dy):
     if Game.totalzoom !=1:
         #the best idea i have is to entirely replace the mouse with a new system, but it could be performance intensive
-        print("dx must be fixed")
+        Cursor.create_cursor(x/Game.totalzoom,y/Game.totalzoom)
+        Game.cursor_created=True
+        window.set_mouse_visible(False)
         #don't forget to test that the minigames still work fine and to adjust variables. 
+        #pushbuttons are a serious issue. 
+        #if mouse issue, mouse should 
+    else:
+        window.set_mouse_visible(True)
+        Game.cursor_created=False
 @window.event
 def on_mouse_scroll(x,y,scroll_x,scroll_y):
+    Cursor.create_cursor(x/Game.totalzoom,y/Game.totalzoom)
+    x=x/Game.totalzoom
+    y=y/Game.totalzoom
     if  minigame.kneadmininit and Game.minigameopen and minigame.hot:
         minigame.totalscroll=minigame.totalscroll+scroll_y*10
         if 1+minigame.totalscroll/300<minigame.lowest:
@@ -153,6 +165,11 @@ def on_mouse_scroll(x,y,scroll_x,scroll_y):
 
 @window.event        
 def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
+    Cursor.create_cursor(x/Game.totalzoom,y/Game.totalzoom)
+    x=x/Game.totalzoom
+    y=y/Game.totalzoom
+    dx=dx/Game.totalzoom
+    dy=dy/Game.totalzoom
     if buttons & pyglet.window.mouse.LEFT and minigame.milkingmininit:
         if Game.milk:
             colour=(255, 163, 177)
@@ -162,7 +179,7 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
             Game.x1, Game.y1 = x, y
             Game.colourexists=minigame.fetch_colour(x, y)
         if Game.colourexists:
-            Game.rectangle.opacity=0
+            #Game.rectangle.opacity=0 this is for udder...
             Game.dragintensity = Game.dragintensity + 1
 
             if y-Game.y1<0 and Game.milk:
@@ -207,14 +224,17 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
                 minigame.uddersprite.update(scale_x=scalex, scale_y=-scaley,x=(Game.SIZE[0]/2)*Game.totalzoom,y=(Game.SIZE[1]/2+64)*Game.totalzoom, rotation=Game.drainrotation)
 @window.event
 def on_mouse_release(x, y, button, modifiers):
+    Cursor.create_cursor(x/Game.totalzoom,y/Game.totalzoom)
+    x=x/Game.totalzoom
+    y=y/Game.totalzoom
     if Game.dragintensity != 0:
-        Game.rectangle.opacity=0
+        #Game.rectangle.opacity=0 this line needs to run on an udder
         Game.drainrotation=0.0
         minigame.getmousepos(Game.x1, Game.y1, Game.dragintensity,hud)
         if not Game.milk:
             minigame.uddersprite.update(scale_x=1, scale_y=-1,x=((Game.SIZE[0]/2)*Game.totalzoom),y=(Game.SIZE[1]/2+64) *Game.totalzoom,rotation=Game.drainrotation)
         else:
-            minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64)  )
+            minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64))
         minigame.totaldrag=minigame.totaldrag+Game.dragintensity
         Game.dragintensity = 0
 
