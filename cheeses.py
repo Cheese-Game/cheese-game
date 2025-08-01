@@ -38,5 +38,7 @@ class Cheeses:
             if accuracy>max_accuracy:
                 max_accuracy=accuracy
                 likelycheese=cheese["cheese"]
+        minigame.kneadval=0
+        minigame.totaldrag=0
         return likelycheese, max_accuracy
 

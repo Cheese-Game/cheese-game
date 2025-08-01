@@ -26,12 +26,13 @@ class Game:
     milk = False
     colourexists=False
     drainrotation=0.0
+    rectangle_exists=False
     dragintensity = 0
     x1 = 0
     y1 = 0
     minigameopen = False
     cursor_created=False
-
+    
 
     def __init__(self) -> None:
         pyglet.app.run()
@@ -179,9 +180,9 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
             Game.x1, Game.y1 = x, y
             Game.colourexists=minigame.fetch_colour(x, y)
         if Game.colourexists:
-            #Game.rectangle.opacity=0 this is for udder...
             Game.dragintensity = Game.dragintensity + 1
-
+            if minigame.udder=="real" and Game.rectangle_exists:
+                    Game.rectangle.opacity=0
             if y-Game.y1<0 and Game.milk:
                 if (((x-Game.x1)**2+(y-Game.y1)**2)**0.5) >= 100:
                     Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (8.4), (-100), color=colour, batch=hud.getpopupbatch()[0])
@@ -190,7 +191,8 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
                     Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (12/(((x-Game.x1)**2+(y-Game.y1)**2)**0.5)**0.096689), -(((x-Game.x1)**2+(y-Game.y1)**2)**0.5), color=colour, batch=hud.getpopupbatch()[0])
 
                 Game.rectangle.rotation=math.degrees(math.atan((x-Game.x1)/(y-Game.y1)))
-
+                Game.rectangle_exists=True
+                
 
                 hud.getpopupbatch()[1].append(Game.rectangle)
                 minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64)  )
@@ -227,8 +229,9 @@ def on_mouse_release(x, y, button, modifiers):
     Cursor.create_cursor(x/Game.totalzoom,y/Game.totalzoom)
     x=x/Game.totalzoom
     y=y/Game.totalzoom
+    Game.rectangle_exists=False
     if Game.dragintensity != 0:
-        #Game.rectangle.opacity=0 this line needs to run on an udder
+        Game.rectangle.opacity=0
         Game.drainrotation=0.0
         minigame.getmousepos(Game.x1, Game.y1, Game.dragintensity,hud)
         if not Game.milk:
@@ -237,6 +240,8 @@ def on_mouse_release(x, y, button, modifiers):
             minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64))
         minigame.totaldrag=minigame.totaldrag+Game.dragintensity
         Game.dragintensity = 0
+        if minigame.milk ==0:
+            Cursor.set_cursor(window, Cursor.CROSSHAIR)
 
 
 
@@ -253,11 +258,11 @@ def on_key_press(symbol, modifiers) -> None:
         pyglet.clock.schedule_interval(player.move_right, 1 / 60.0,music_manager)
     elif (symbol == pyglet.window.key.PLUS or
           (symbol == pyglet.window.key.EQUAL and modifiers
-           and pyglet.window.key.MOD_SHIFT)) and Game.totalzoom < 3.0:
+           and pyglet.window.key.MOD_SHIFT)):
         window.view = window.view.scale((Game.zoom, Game.zoom, 1))
         Game.totalzoom = Game.totalzoom * Game.zoom
         zoom()
-    elif symbol == pyglet.window.key.MINUS and Game.totalzoom > 0.101:
+    elif symbol == pyglet.window.key.MINUS and Game.totalzoom > 0.5:
         window.view = window.view.scale(
             (1 / Game.zoom, 1 / Game.zoom, 1))
         Game.totalzoom /= Game.zoom
@@ -308,8 +313,6 @@ def on_key_press(symbol, modifiers) -> None:
     elif symbol == pyglet.window.key.M:
         playerpos = player.get_pos()
         cowpos = npcs.cow.get_pos()  
-        print(tilemap.find_tile(playerpos,2))
-        #detects if cow is nearby for milking. (code hached below is code for cow moo.)
         
         if (playerpos[0]<=cowpos[0]+2 and playerpos[0]>=cowpos[0]-2 and playerpos[1]<=cowpos[1]+2 and playerpos[1]>=cowpos[1]-2):
             if Game.milk:
@@ -363,5 +366,6 @@ music_manager.update_area("europe","europe")
 
 npcs = NPC_Manager(Game.SIZE, player, tilemap)
 pyglet.clock.schedule_once(Game.moo,randint(5,10))
+#this should be for each cow..
 
 game = Game()
