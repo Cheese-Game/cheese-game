@@ -48,7 +48,6 @@ class Minigame:
         self.screen_width /= zoom
         self.screen_height /= zoom
         self.corner1 = self.screen_width / 2 - 128, self.screen_height / 2 - 64
-
     def returnmilk(self, hud, player):
         print("mug full. put code to fill mug here later")
         self.milk = 0

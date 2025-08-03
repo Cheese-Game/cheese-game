@@ -108,6 +108,8 @@ def on_draw():
 
 def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
+    Game.SIZE=Game.SIZE[0]/z,Game.SIZE[1]/z
+    #when you 'fixed' the zoom, it broke most things to do with it. please next time understand the
     player.set_screen_size(z)
     tilemap.set_screen_size(z)
     minigame.set_screen_size(z)
@@ -125,10 +127,10 @@ def on_mouse_motion(x,y,dx,dy):
         #the best idea i have is to entirely replace the mouse with a new system, but it could be performance intensive
         Cursor.create_cursor(x/Game.totalzoom,y/Game.totalzoom)
         Game.cursor_created=True
-        window.set_mouse_visible(False)
-        #don't forget to test that the minigames still work fine and to adjust variables. 
-        #pushbuttons are a serious issue. 
-        #if mouse issue, mouse should 
+        #window.set_mouse_visible(False)
+        #^ is to reactivate once pushbuttons are fix
+        #pushbuttons are a serious issue... 
+        #udder-rectangle broken x when zoomed out
     else:
         window.set_mouse_visible(True)
         Game.cursor_created=False
@@ -144,7 +146,9 @@ def on_mouse_scroll(x,y,scroll_x,scroll_y):
         if 1+minigame.totalscroll/300>minigame.highest:
             minigame.highest=1+minigame.totalscroll/300
         if minigame.totalscroll>=-120 and minigame.totalscroll<400:
-            minigame.kneadingcheese.update(scale_x=1+minigame.totalscroll/300, scale_y=(1/(1+minigame.totalscroll/300)),x=(Game.SIZE[0]/2-128*(1+minigame.totalscroll/300))*Game.totalzoom,y=(Game.SIZE[1]/2-64/(1+minigame.totalscroll/300))*Game.totalzoom)
+            minigame.kneadingcheese.update(scale_x=1+minigame.totalscroll/300, scale_y=(1/(1+minigame.totalscroll/300)),x=(Game.SIZE[0]/2-128*(1+minigame.totalscroll/300)),y=(Game.SIZE[1]/2-64/(1+minigame.totalscroll/300)))
+            print(minigame.kneadingcheese.scale_x,minigame.kneadingcheese.x)
+            print(Game.SIZE[0])
         elif minigame.totalscroll>400:
             minigame.kneadingcheese.image=pyglet.resource.image("assets/sprites/hud/minigame/curdincloth.png",atlas=True)
             print("cheese was broken :(")
@@ -195,7 +199,7 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
                 
 
                 hud.getpopupbatch()[1].append(Game.rectangle)
-                minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64)  )
+                minigame.uddersprite.update(scale_x=1,scale_y=1, x=(Game.SIZE[0]/2-128),y=(Game.SIZE[1]/2-64))
             elif not Game.milk :
                 pivot=[Game.SIZE[0]/2,Game.SIZE[1]/2+64]
                 if ((pivot[0]-x)**2+(pivot[1]-y)**2)**0.5/((pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2)**0.5 == 1.5 and y-Game.y1<0:
@@ -223,21 +227,23 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
                     Game.drainrotation=0.0
                 if x>pivot[0]:
                     Game.drainrotation=-Game.drainrotation
-                minigame.uddersprite.update(scale_x=scalex, scale_y=-scaley,x=(Game.SIZE[0]/2)*Game.totalzoom,y=(Game.SIZE[1]/2+64)*Game.totalzoom, rotation=Game.drainrotation)
+                minigame.uddersprite.update(scale_x=scalex, scale_y=-scaley,x=(Game.SIZE[0]/2),y=(Game.SIZE[1]/2+64), rotation=Game.drainrotation)
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     Cursor.create_cursor(x/Game.totalzoom,y/Game.totalzoom)
     x=x/Game.totalzoom
     y=y/Game.totalzoom
-    Game.rectangle_exists=False
     if Game.dragintensity != 0:
-        Game.rectangle.opacity=0
+        if Game.rectangle_exists:
+            Game.rectangle.opacity=0
+            Game.rectangle_exists=False
+
         Game.drainrotation=0.0
         minigame.getmousepos(Game.x1, Game.y1, Game.dragintensity,hud)
         if not Game.milk:
-            minigame.uddersprite.update(scale_x=1, scale_y=-1,x=((Game.SIZE[0]/2)*Game.totalzoom),y=(Game.SIZE[1]/2+64) *Game.totalzoom,rotation=Game.drainrotation)
+            minigame.uddersprite.update(scale_x=1, scale_y=-1,x=((Game.SIZE[0]/2)),y=(Game.SIZE[1]/2+64),rotation=Game.drainrotation)
         else:
-            minigame.uddersprite.update(scale_y=1, x=(Game.SIZE[0]/2-128)*Game.totalzoom,y=(Game.SIZE[1]/2-64))
+            minigame.uddersprite.update(scale_x=1,scale_y=1, x=(Game.SIZE[0]/2-128),y=(Game.SIZE[1]/2-64))
         minigame.totaldrag=minigame.totaldrag+Game.dragintensity
         Game.dragintensity = 0
         if minigame.milk ==0:
@@ -269,7 +275,7 @@ def on_key_press(symbol, modifiers) -> None:
         zoom(recip=True)
     elif symbol == pyglet.window.key.EQUAL:
         Game.zoom = 1.0 / Game.totalzoom 
-        #raffers completely fucked this up. i fixed it. next time, please stop modifying things without testing that the features actually work.aw
+        #raffers completely fucked this up. i fixed it. next time, please stop modifying things without testing that the features actually work.
         window.view = window.view.scale((Game.zoom, Game.zoom, 1))
         z = Game.zoom
         player.set_screen_size(z)
@@ -366,6 +372,6 @@ music_manager.update_area("europe","europe")
 
 npcs = NPC_Manager(Game.SIZE, player, tilemap)
 pyglet.clock.schedule_once(Game.moo,randint(5,10))
-#this should be for each cow..
+#this should be for each cow...
 
 game = Game()
