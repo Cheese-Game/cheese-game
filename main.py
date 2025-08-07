@@ -109,7 +109,7 @@ def on_draw():
 def zoom(recip: bool=False) -> None:
     z = 1 / Game.zoom if recip else Game.zoom
     Game.SIZE=Game.SIZE[0]/z,Game.SIZE[1]/z
-    #when you 'fixed' the zoom, it broke most things to do with it. please next time understand the
+    #please don't fix anything again, raffers
     player.set_screen_size(z)
     tilemap.set_screen_size(z)
     minigame.set_screen_size(z)
@@ -278,6 +278,7 @@ def on_key_press(symbol, modifiers) -> None:
         #raffers completely fucked this up. i fixed it. next time, please stop modifying things without testing that the features actually work.
         window.view = window.view.scale((Game.zoom, Game.zoom, 1))
         z = Game.zoom
+        Game.SIZE=640,480
         player.set_screen_size(z)
         tilemap.set_screen_size(z)
         minigame.set_screen_size(z)
