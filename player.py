@@ -44,7 +44,7 @@ class Player:
                 music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_back_default
         if self.step_counter % 16 == 0:
-            music_manager.play_sfx(f"step{random.randint(1, 2)}")
+            music_manager.play_sfx(f"step{random.randint(1, 2)}", 1)
         
     def move_down(self, dt, music_manager) -> None:
         self.step_counter += 1
@@ -54,7 +54,7 @@ class Player:
                 music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_front_default
         if self.step_counter % 16 == 0:
-            music_manager.play_sfx(f"step{random.randint(1, 2)}")
+            music_manager.play_sfx(f"step{random.randint(1, 2)}", 1)
 
     def move_left(self, dt, music_manager) -> None:
         self.step_counter += 1
@@ -64,7 +64,7 @@ class Player:
                 music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_left_default
         if self.step_counter % 16 == 0:
-            music_manager.play_sfx(f"step{random.randint(1, 2)}")
+            music_manager.play_sfx(f"step{random.randint(1, 2)}", 1)
 
     def move_right(self, dt, music_manager) -> None:
         self.step_counter += 1
@@ -74,7 +74,7 @@ class Player:
                 music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_right_default
         if self.step_counter % 16 == 0:
-            music_manager.play_sfx(f"step{random.randint(1, 2)}")
+            music_manager.play_sfx(f"step{random.randint(1, 2)}", 1)
 
     def draw(self) -> None:
         self.sprite.draw()

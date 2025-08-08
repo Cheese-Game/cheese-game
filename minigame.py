@@ -19,7 +19,7 @@ class Minigame:
         self.secssincehot = 0.0
         self.instruction = ""
         self.kneadmininit = False
-        self.batch = hud.dialogbatch
+        self.batch = hud.dialog_batch
         self.dialog_components = hud.dialog_components
         self.corner1 = self.screen_width / 2 - 128, self.screen_height / 2 - 64
         self.milkingmininit = False
