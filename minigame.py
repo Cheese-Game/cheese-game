@@ -18,8 +18,8 @@ class Minigame:
         self.secssincehot = 0.0
         self.instruction = ""
         self.kneadmininit = False
-        self.batch = hud.popupbatch
-        self.popup_components = hud.popup_components
+        self.batch = hud.dialogbatch
+        self.dialog_components = hud.dialog_components
         self.corner1 = self.screen_width / 2 - 128, self.screen_height / 2 - 64
         self.milkingmininit = False
         self.starttime = time.time()
@@ -46,7 +46,7 @@ class Minigame:
     def returnmilk(self, hud, player):
         print("mug full. put code to fill mug here later")
         self.milk = 0
-        hud.close_popup(player)
+        hud.close_dialog(player)
 
     def milkingmini(self, udder) -> None:
         self.milk = 0
@@ -75,7 +75,7 @@ class Minigame:
         if udder == "drain":
             self.uddersprite.update(scale_y=-1)
 
-        self.popup_components.append(self.uddersprite)
+        self.dialog_components.append(self.uddersprite)
 
     def getmousepos(self, x1, y1, intensity, hud):
         if self.milkingmininit and self.udder == "real":
@@ -101,7 +101,7 @@ class Minigame:
             batch=self.batch,
         )
 
-        self.popup_components.append(self.kneadingcheese)
+        self.dialog_components.append(self.kneadingcheese)
 
     def minigameselector(self, hud, item) -> None:
         if self.hot:
@@ -147,20 +147,20 @@ class Minigame:
 
         def killself(self, hud):
             if self.hot:
-                self.popup_components.remove(self.kneadingbtn)
+                self.dialog_components.remove(self.kneadingbtn)
                 self.kneadingbtn = None
 
-            self.popup_components.remove(self.hotbtn)
-            self.popup_components.remove(self.finishbtn)
+            self.dialog_components.remove(self.hotbtn)
+            self.dialog_components.remove(self.finishbtn)
             self.hotbtn = None
-            self.popup_components.remove(self.drainingbtn)
+            self.dialog_components.remove(self.drainingbtn)
             self.drainingbtn = None
             self.finishbtn = None
 
         def on_press_backbtn(_):
-            hud.popup = None
-            self.popup_components.clear()
-            self.instruction = "create-popup"
+            hud.dialog = None
+            self.dialog_components.clear()
+            self.instruction = "create-dialog"
             self.kneadingcheese = None
             self.nailsprite = None
             self.uddersprite = None
@@ -185,15 +185,15 @@ class Minigame:
 
         if self.hot:
             self.kneadingbtn.set_handler('on_press', on_presskneadbtn)
-            self.popup_components.append(self.kneadingbtn)
+            self.dialog_components.append(self.kneadingbtn)
         self.finishbtn.set_handler('on_press', on_pressfinishbtn)
         self.backbtn.set_handler('on_press', on_press_backbtn)
         self.drainingbtn.set_handler('on_press', on_pressdrainbtn)
         self.hotbtn.set_handler('on_press', on_presshotbtn)
-        self.popup_components.append(self.backbtn)
-        self.popup_components.append(self.drainingbtn)
-        self.popup_components.append(self.hotbtn)
-        self.popup_components.append(self.finishbtn)
+        self.dialog_components.append(self.backbtn)
+        self.dialog_components.append(self.drainingbtn)
+        self.dialog_components.append(self.hotbtn)
+        self.dialog_components.append(self.finishbtn)
 
 
 from collections.abc import Mapping
@@ -216,8 +216,8 @@ class Minigame:
         self.secssincehot = 0.0
         self.instruction = ""
         self.kneadmininit = False
-        self.batch = hud.popupbatch
-        self.popup_components = hud.popup_components
+        self.batch = hud.dialog_batch
+        self.dialog_components = hud.dialog_components
         self.corner1 = self.screen_width / 2 - 128, self.screen_height / 2 - 64
         self.milkingmininit = False
         self.starttime = time.time()
@@ -244,7 +244,7 @@ class Minigame:
     def returnmilk(self, hud, player):
         print("mug full. put code to fill mug here later")
         self.milk = 0
-        hud.close_popup(player)
+        hud.close_dialog(player)
 
     def milkingmini(self, udder) -> None:
         self.milk = 0
@@ -273,7 +273,7 @@ class Minigame:
         if udder == "drain":
             self.uddersprite.update(scale_y=-1)
 
-        self.popup_components.append(self.uddersprite)
+        self.dialog_components.append(self.uddersprite)
 
     def getmousepos(self, x1, y1, intensity, hud):
         if self.milkingmininit and self.udder == "real":
@@ -299,7 +299,7 @@ class Minigame:
             batch=self.batch,
         )
 
-        self.popup_components.append(self.kneadingcheese)
+        self.dialog_components.append(self.kneadingcheese)
 
     def minigameselector(self, hud, item) -> None:
         if self.hot:
@@ -345,20 +345,20 @@ class Minigame:
 
         def killself(self, hud):
             if self.hot:
-                self.popup_components.remove(self.kneadingbtn)
+                self.dialog_components.remove(self.kneadingbtn)
                 self.kneadingbtn = None
 
-            self.popup_components.remove(self.hotbtn)
-            self.popup_components.remove(self.finishbtn)
+            self.dialog_components.remove(self.hotbtn)
+            self.dialog_components.remove(self.finishbtn)
             self.hotbtn = None
-            self.popup_components.remove(self.drainingbtn)
+            self.dialog_components.remove(self.drainingbtn)
             self.drainingbtn = None
             self.finishbtn = None
 
         def on_press_backbtn(_):
-            hud.popup = None
-            self.popup_components.clear()
-            self.instruction = "create-popup"
+            hud.dialog = None
+            self.dialog_components.clear()
+            self.instruction = "create-dialog"
             self.kneadingcheese = None
             self.nailsprite = None
             self.uddersprite = None
@@ -383,12 +383,12 @@ class Minigame:
 
         if self.hot:
             self.kneadingbtn.set_handler('on_press', on_presskneadbtn)
-            self.popup_components.append(self.kneadingbtn)
+            self.dialog_components.append(self.kneadingbtn)
         self.finishbtn.set_handler('on_press', on_pressfinishbtn)
         self.backbtn.set_handler('on_press', on_press_backbtn)
         self.drainingbtn.set_handler('on_press', on_pressdrainbtn)
         self.hotbtn.set_handler('on_press', on_presshotbtn)
-        self.popup_components.append(self.backbtn)
-        self.popup_components.append(self.drainingbtn)
-        self.popup_components.append(self.hotbtn)
-        self.popup_components.append(self.finishbtn)
+        self.dialog_components.append(self.backbtn)
+        self.dialog_components.append(self.drainingbtn)
+        self.dialog_components.append(self.hotbtn)
+        self.dialog_components.append(self.finishbtn)

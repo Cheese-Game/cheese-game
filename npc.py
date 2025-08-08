@@ -1,5 +1,5 @@
 from math import sqrt
-from pyglet import resource, sprite, clock, graphics
+from pyglet import resource, sprite, clock, graphics, text, gui
 from random import randint, random, shuffle, choice
 from json import load
 from os import fsdecode, fsencode, listdir
@@ -14,7 +14,7 @@ class NPC_Manager:
         self.player = player
         self.tilemap = tilemap
 
-        self.npc_list = []
+        self.npc_list: list[NPC | Cow | Child] = []
         self.batch = graphics.Batch()
 
         self.initialise_children()
@@ -91,12 +91,45 @@ class NPC:
         with open(f"assets/npc_info/{self.id}.json") as file:
             self.npc_info = load(file)
 
+        self.display_name = self.npc_info["displayName"]
+        self.full_name = self.npc_info["fullName"]
+        self.nationality = self.npc_info["nationality"]
+        self.likes = self.npc_info["likes"]
+
         self.position = [*self.npc_info['locations'][0]]
 
         self.image = resource.image(f'assets/sprites/npc/{self.id}.png', atlas=True)
         self.sprite = sprite.Sprite(self.image, x=self.position[0], y=self.position[1], batch=self.batch)
 
         clock.schedule_once(self.random_movement, randint(1, 5))
+    
+    def interact(self, hud, player) -> None:
+        log(f"Interacting with NPC: {self.id}")
+
+        interaction_menu_components = []
+
+        useless_list_just_to_appease_this_stupid_library = []
+
+        title = text.Label(self.display_name, x=60, y=380)
+
+        buttons_batch = graphics.Batch()
+
+        talk_button_pressed = resource.image('assets/sprites/hud/npc_talk_button_pressed.png', atlas=True)
+        talk_button_unpressed = resource.image('assets/sprites/hud/npc_talk_button_unpressed.png', atlas=True)
+        talk_button_hover = resource.image('assets/sprites/hud/npc_talk_button_hover.png', atlas=True)
+
+        talk_button = gui.PushButton(x=60, y=300, pressed=talk_button_pressed, 
+                                     unpressed=talk_button_unpressed, hover=talk_button_hover,
+                                     batch=buttons_batch)
+        
+        useless_list_just_to_appease_this_stupid_library.append(talk_button)
+
+        interaction_menu_components.extend([title, buttons_batch])
+
+        hud.create_dialog(x=40, y=40, w=560, h=400, player=player, dialog_contents=interaction_menu_components)
+    
+    def get_pos(self) -> list[float]:
+        return self.position
 
     def random_movement(self, _) -> None:
         target_location = choice(self.npc_info['locations'])
@@ -113,8 +146,6 @@ class NPC:
         path_positions = []
         for tile in path:
             path_positions.append(tile.pos)
-
-        log(path_positions)
 
         clock.schedule_interval(self.move, 1/60, path_positions, target_location)
 
@@ -416,7 +447,6 @@ class AStar:
 
         for dir in dirs:
             neighbour_pos = (int(node.pos[0] + dir[0]), int(node.pos[1] + dir[1]))
-            log(neighbour_pos)
 
             if (0 <= neighbour_pos[0] < self.map_grid.shape[0] and 0 <= neighbour_pos[1] < self.map_grid.shape[1]):
                 if self.map_grid[neighbour_pos] == 0:

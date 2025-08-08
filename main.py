@@ -13,7 +13,7 @@ from cheeses import Cheeses
 from player import Player
 from tiles import Tilemap
 from logger import log
-from npc import NPC_Manager
+from npc import NPC_Manager, NPC
 from hud import Hud
 from minigame import Minigame
 from lang import Lang
@@ -46,6 +46,8 @@ Game.zoom = 2.0
 
 cursor.set_cursor(window, cursor.CROSSHAIR)
 
+pyglet.options['debug_graphics_batch'] = True
+
 
 @window.event
 def on_draw():
@@ -55,6 +57,7 @@ def on_draw():
                               pyglet.gl.GL_NEAREST)
 
     tilemap.adjust_position(player.get_pos())
+
     tilemap.bg_batch.draw()
     player.draw()
     npcs.draw(player.get_pos())
@@ -62,27 +65,27 @@ def on_draw():
     hud.hud_batch.draw()
     fps_display.draw()
 
-    if hud.inventory_open:
-        hud.inventory_batch.draw()
+    #log(hud.active_gui_batches)
+    for elem in hud.active_gui_components:
+        elem.draw()
 
-    if minigame.instruction == "create-popup":
+    if minigame.instruction == "create-dialog":
         minigame.kneadmininit=False
         minigame.milkingmininit=False
-        hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,(Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,128,player)
+        hud.create_dialog((Game.SIZE[0] / 2 - 128) * Game.totalzoom, (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,128,player)
         minigame.minigameselector(hud,cheeses)
         Game.minigameopen=True
         minigame.instruction = ""
-    if hud.popup is not None:
-        hud.popup.draw()
-        if hasattr(minigame,"nailsprite"):
-            if minigame.nailsprite is not None:
-                minigame.nailsprite.draw()
+
+    if hud.dialog is not None and hasattr(minigame, "nailsprite"):
+        if minigame.nailsprite is not None:
+            minigame.nailsprite.draw()
 
     else:
         Game.minigameopen=False
         minigame.kneadmininit=False
         minigame.milkingmininit=False
-        minigame.popup_components.clear()
+        minigame.dialog_components.clear()
         minigame.kneadingcheese=None
         minigame.uddersprite=None
         minigame.kneadingbtn=None
@@ -104,13 +107,13 @@ def zoom(recip: bool=False) -> None:
     minigame.set_screen_size(z)
     hud.set_screen_size(z)
     npcs.set_screen_size(z)
-    hud.close_popup(player)
+    hud.close_dialog(player)
     hud.close_inventory()
 
     if hud.inventory_open:
         hud.close_inventory()
-    if hud.popup is not None:
-        hud.close_popup(player)
+    if hud.dialog is not None:
+        hud.close_dialog(player)
 
 @window.event
 def on_mouse_scroll(x,y,scroll_x,scroll_y):
@@ -158,15 +161,15 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
 
             if y-Game.y1<0 and Game.milk:
                 if (((x-Game.x1)**2+(y-Game.y1)**2)**0.5) >= 100:
-                    Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (8.4), (-100), color=colour, batch=hud.getpopupbatch()[0])
+                    Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (8.4), (-100), color=colour, batch=hud.get_dialog_batch()[0])
 
                 else:
-                    Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (12/(((x-Game.x1)**2+(y-Game.y1)**2)**0.5)**0.096689), -(((x-Game.x1)**2+(y-Game.y1)**2)**0.5), color=colour, batch=hud.getpopupbatch()[0])
+                    Game.rectangle = pyglet.shapes.Rectangle(Game.x1, Game.y1, (12/(((x-Game.x1)**2+(y-Game.y1)**2)**0.5)**0.096689), -(((x-Game.x1)**2+(y-Game.y1)**2)**0.5), color=colour, batch=hud.get_dialog_batch()[0])
 
                 Game.rectangle.rotation=math.degrees(math.atan((x-Game.x1)/(y-Game.y1)))
 
 
-                hud.getpopupbatch()[1].append(Game.rectangle)
+                hud.get_dialog_batch()[1].append(Game.rectangle)
             elif not Game.milk :
                 pivot=[Game.SIZE[0]/2,Game.SIZE[1]/2+64]
                 if ((pivot[0]-x)**2+(pivot[1]-y)**2)**0.5/((pivot[0]-Game.x1)**2+(pivot[1]-Game.y1)**2)**0.5 == 1.5 and y-Game.y1<0:
@@ -201,6 +204,22 @@ def on_mouse_drag(x, y, dx, dy, buttons, modifiers):
 
 
                 minigame.uddersprite.update(scale_x=scalex, scale_y=-scaley,x=(Game.SIZE[0]/2)*Game.totalzoom,y=(Game.SIZE[1]/2+64)*Game.totalzoom, rotation=Game.drainrotation)
+
+@window.event
+def on_mouse_press(x, y, button, modifiers):
+    if button == pyglet.window.mouse.LEFT:
+        # get nearest interactable thing
+        nearest_npc = None
+        for npc in npcs.npc_list:
+            if isinstance(npc, NPC): # checks if is human npc
+                dist_to_npc = ((npc.get_pos()[0] - player.get_pos()[0]) ** 2 + (npc.get_pos()[1] - player.get_pos()[1]) ** 2) ** 0.5
+                if (nearest_npc is None or dist_to_npc < nearest_npc[1]) and dist_to_npc < 2:
+                    nearest_npc = (npc, dist_to_npc)
+        if nearest_npc is not None:
+            nearest_npc[0].interact(hud, player)
+        else:
+            log("No interactable NPCs nearby")
+
 @window.event
 def on_mouse_release(x, y, button, modifiers):
     if Game.dragintensity != 0:
@@ -217,17 +236,13 @@ def on_mouse_release(x, y, button, modifiers):
 def on_key_press(symbol, modifiers) -> None:
     #normalisation? why would anyone do this
     if symbol == pyglet.window.key.W:
-        pyglet.clock.schedule_interval(player.move_up, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_up, 1 / 60.0, music_manager)
     elif symbol == pyglet.window.key.A:
-        pyglet.clock.schedule_interval(player.move_left, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_left, 1 / 60.0, music_manager)
     elif symbol == pyglet.window.key.S:
-        pyglet.clock.schedule_interval(player.move_down, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_down, 1 / 60.0, music_manager)
     elif symbol == pyglet.window.key.D:
-        pyglet.clock.schedule_interval(player.move_right, 1 / 60.0)
-        music_manager.play_sfx("step")
+        pyglet.clock.schedule_interval(player.move_right, 1 / 60.0, music_manager)
     elif (symbol == pyglet.window.key.PLUS or
           (symbol == pyglet.window.key.EQUAL and modifiers
            and pyglet.window.key.MOD_SHIFT)) and Game.totalzoom < 3.0:
@@ -264,7 +279,7 @@ def on_key_press(symbol, modifiers) -> None:
             hud.open_inventory()
     elif symbol == pyglet.window.key.F:
         Game.milk=False
-        hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
+        hud.create_dialog((Game.SIZE[0] / 2 - 128) * Game.totalzoom,
              (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,
              128,player)
         minigame.minigameselector(hud,cheeses)
@@ -277,9 +292,9 @@ def on_key_press(symbol, modifiers) -> None:
         if (playerpos[0]<=cowpos[0]+2 and playerpos[0]>=cowpos[0]-2 and playerpos[1]<=cowpos[1]+2 and playerpos[1]>=cowpos[1]-2):
             if Game.milk:
 
-                hud.close_popup(player)
+                hud.close_dialog(player)
             else:
-                hud.create_popup(0, (Game.SIZE[0] / 2 - 128) * Game.totalzoom,
+                hud.create_dialog((Game.SIZE[0] / 2 - 128) * Game.totalzoom,
                              (Game.SIZE[1] / 2 - 64) * Game.totalzoom, 256,
                              128,player)
                 minigame.milkingmini("real")

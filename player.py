@@ -1,6 +1,8 @@
 from pyglet.resource import image
 from pyglet import sprite
 
+import random
+
 
 class Player:
     SPEED = 16.0
@@ -16,6 +18,7 @@ class Player:
         self.can_move = True
         self.current_area = "europe"
         self.current_tilemap = "europe"
+        self.step_counter = 0
 
     def set_screen_size(self, zoom) -> None:
         self.screen_width /= zoom
@@ -32,29 +35,41 @@ class Player:
     def reset_pos(self) -> None:
         self.position = [0.0, 0.0]
 
-    def move_up(self, dt) -> None:
+    def move_up(self, dt, music_manager) -> None:
+        self.step_counter += 1
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 0):
                 self.position[1] += int(Player.SPEED * dt * 4) / 4
             self.sprite = self.sprites.sprite_back_default
+        if self.step_counter % 16 == 0:
+            music_manager.play_sfx(f"step{random.randint(1, 2)}")
         
-    def move_down(self, dt) -> None:
+    def move_down(self, dt, music_manager) -> None:
+        self.step_counter += 1
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 1):
                 self.position[1] -= int(Player.SPEED * dt * 4) / 4
             self.sprite = self.sprites.sprite_front_default
+        if self.step_counter % 16 == 0:
+            music_manager.play_sfx(f"step{random.randint(1, 2)}")
 
-    def move_left(self, dt) -> None:
+    def move_left(self, dt, music_manager) -> None:
+        self.step_counter += 1
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 2):
                 self.position[0] -= int(Player.SPEED * dt * 4) / 4
             self.sprite = self.sprites.sprite_left_default
+        if self.step_counter % 16 == 0:
+            music_manager.play_sfx(f"step{random.randint(1, 2)}")
 
-    def move_right(self, dt) -> None:
+    def move_right(self, dt, music_manager) -> None:
+        self.step_counter += 1
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 3):
                 self.position[0] += int(Player.SPEED * dt * 4) / 4
             self.sprite = self.sprites.sprite_right_default
+        if self.step_counter % 16 == 0:
+            music_manager.play_sfx(f"step{random.randint(1, 2)}")
 
     def draw(self) -> None:
         self.sprite.draw()
