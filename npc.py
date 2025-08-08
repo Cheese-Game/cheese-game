@@ -226,7 +226,7 @@ class Cow:
 
     def get_pos(self) -> list:
         return self.position
-
+    
     def update(self, _, player_pos) -> None:
         x, y = player_pos
 

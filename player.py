@@ -14,6 +14,7 @@ class Player:
         self.sprites = PlayerSprites(sprite_path, screen_size)
         self.sprite = self.sprites.sprite_front_default
         self.inventory = []
+        self.count=0.0
         self.current_item = None
         self.can_move = True
         self.current_area = "europe"
@@ -40,6 +41,7 @@ class Player:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 0):
                 self.position[1] += int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_back_default
         if self.step_counter % 16 == 0:
             music_manager.play_sfx(f"step{random.randint(1, 2)}")
@@ -49,6 +51,7 @@ class Player:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 1):
                 self.position[1] -= int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_front_default
         if self.step_counter % 16 == 0:
             music_manager.play_sfx(f"step{random.randint(1, 2)}")
@@ -58,6 +61,7 @@ class Player:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 2):
                 self.position[0] -= int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_left_default
         if self.step_counter % 16 == 0:
             music_manager.play_sfx(f"step{random.randint(1, 2)}")
@@ -67,6 +71,7 @@ class Player:
         if self.can_move:
             if not self.tilemap.test_collisions(self.position, 3):
                 self.position[0] += int(Player.SPEED * dt * 4) / 4
+                music_manager.play_sfx("step",0.03)
             self.sprite = self.sprites.sprite_right_default
         if self.step_counter % 16 == 0:
             music_manager.play_sfx(f"step{random.randint(1, 2)}")
