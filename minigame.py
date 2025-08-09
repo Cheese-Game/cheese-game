@@ -29,7 +29,7 @@ class Minigame:
             self.hot=False
         else:
             self.secssincehot=self.secssincehot +1
-            #this just keeps going (???) but ill let it whilst the program still runs bove 30
+            #this is just a shit counter. must fix
        
     def fetch_colour(self, x, y):
         x = int(x - self.corner1[0])
